@@ -390,7 +390,7 @@ redirect_from:
     </div>
     <div class="news-item">
       <div class="news-date">Jul 2026</div>
-      <div class="news-content"><i class="fas fa-file-alt" style="color: var(--lab-primary);"></i> Rohit Kanchi to present at the prestigious <a href="https://www.nas.nasa.gov/pubs/ams.html" target="_blank"><strong>NASA Ames Applied Modeling &amp; Simulation Seminar</strong></a> on July 2.</div>
+      <div class="news-content"><i class="fas fa-file-alt" style="color: var(--lab-primary);"></i> Rohit Kanchi presented at the prestigious <a href="https://www.nas.nasa.gov/pubs/ams/2026/07-02-26.html" target="_blank"><strong>NASA Ames Applied Modeling &amp; Simulation Seminar</strong></a> on July 2 (video and slides).</div>
     </div>
     <div class="news-item">
       <div class="news-date">Jun 2026</div>

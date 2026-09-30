@@ -31,6 +31,13 @@ The simulation below was computed using [ADflow](https://github.com/mdolab/adflo
   <figcaption>A tiled view of the 3D buffet dynamics on the CRM wing showing the Q-criterion isosurface, density, pressure coefficient with shock isosurface, spanwise velocity, spanwise vorticity, and lift-coefficient history.</figcaption>
 </figure>
 
+Rohit presented this work at the [NASA Ames Applied Modeling & Simulation (AMS) Seminar Series](https://www.nas.nasa.gov/pubs/ams/2026/07-02-26.html) on July 2, 2026 ([slides](https://www.nas.nasa.gov/assets/nas/pdf/ams/2026/AMS_20260702_Kanchi.pdf)).
+
+<figure class="lab-figure">
+  <a href="https://www.nas.nasa.gov/pubs/ams/2026/07-02-26.html" target="_blank"><img src="../images/research/nasa_ams_seminar.jpg" alt="Transonic Buffet Alleviation via Linear Stability Adjoint, NASA Ames AMS Seminar" style="max-width: 800px; border: 1px solid #d8d8d8; border-radius: 6px;"></a>
+  <figcaption>Watch the recording of &ldquo;Transonic Buffet Alleviation via Linear Stability Adjoint&rdquo; on the <a href="https://www.nas.nasa.gov/pubs/ams/2026/07-02-26.html" target="_blank">NASA Ames AMS seminar page</a> (July 2, 2026).</figcaption>
+</figure>
+
 __Publication:__
 
 
