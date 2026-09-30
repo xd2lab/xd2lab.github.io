@@ -1,0 +1,486 @@
+---
+permalink: /
+title: " "
+excerpt: "Extreme-Condition Dynamics & Design Lab"
+author_profile: false
+redirect_from:
+  - /about/
+  - /about.html
+---
+
+<style>
+/* Hero Section */
+.hero-section {
+  background: var(--lab-primary);
+  color: white;
+  padding: 3em 2em;
+  margin: -1em -1em 2em -1em;
+  text-align: center;
+}
+
+.hero-section h1 {
+  font-size: 2.8em;
+  margin: 0 0 0.25em 0;
+  font-weight: 400;
+  color: white;
+}
+
+.hero-section .tagline {
+  font-size: 1.3em;
+  font-weight: 300;
+  opacity: 0.95;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Main Layout */
+.main-content {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.content-row {
+  display: flex;
+  gap: 3em;
+  margin-bottom: 2.5em;
+}
+
+.content-row.reverse {
+  flex-direction: row-reverse;
+}
+
+@media (max-width: 768px) {
+  .content-row, .content-row.reverse {
+    flex-direction: column;
+  }
+}
+
+/* Profile Section */
+.profile-section {
+  flex: 0 0 280px;
+}
+
+.profile-card {
+  text-align: center;
+}
+
+.profile-card img {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1em;
+}
+
+.profile-card h3 {
+  margin: 0 0 0.25em 0;
+  font-size: 1.4em;
+  color: #333;
+}
+
+.profile-card .title {
+  color: #666;
+  font-size: 1em;
+  margin-bottom: 0.5em;
+}
+
+.profile-card .affiliation {
+  font-size: 0.9em;
+  color: #888;
+  margin-bottom: 1em;
+}
+
+.profile-card .social-links {
+  display: flex;
+  justify-content: center;
+  gap: 0.75em;
+  flex-wrap: wrap;
+}
+
+.profile-card .social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: #f0f0f0;
+  border-radius: 50%;
+  color: #555;
+  font-size: 1.1em;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.profile-card .social-links a:hover {
+  background: var(--lab-primary);
+  color: white;
+}
+
+.contact-info {
+  margin-top: 1.5em;
+  text-align: left;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.contact-info p {
+  margin: 0.4em 0;
+}
+
+.contact-info i {
+  width: 20px;
+  color: var(--lab-primary);
+}
+
+/* Welcome Section */
+.welcome-section {
+  flex: 1;
+}
+
+.welcome-section h2 {
+  color: var(--lab-heading);
+  font-size: 1.8em;
+  font-weight: 400;
+  margin-top: 0;
+  margin-bottom: 0.75em;
+  border-bottom: 1px solid var(--lab-rule);
+  padding-bottom: 0.5em;
+}
+
+.welcome-section p {
+  font-size: 1.05em;
+  line-height: 1.7;
+  color: #444;
+}
+
+/* News Section */
+.news-section {
+  flex: 1;
+}
+
+.news-section h2 {
+  color: var(--lab-heading);
+  font-size: 1.8em;
+  font-weight: 400;
+  margin-top: 0;
+  margin-bottom: 0.75em;
+  border-bottom: 1px solid var(--lab-rule);
+  padding-bottom: 0.5em;
+}
+
+.news-item {
+  display: flex;
+  gap: 1em;
+  padding: 0.6em 0;
+  border-bottom: none;
+}
+
+.news-item:last-child {
+  border-bottom: none;
+}
+
+.news-date {
+  flex: 0 0 80px;
+  white-space: nowrap;
+  font-size: 0.9em;
+  color: var(--lab-primary);
+  font-weight: 600;
+}
+
+.news-content {
+  flex: 1;
+  font-size: 0.95em;
+  color: #333;
+  line-height: 1.5;
+}
+
+.news-content a {
+  color: var(--lab-link);
+}
+
+.news-content strong {
+  color: #333;
+}
+
+/* Openings Section */
+.openings-section {
+  flex: 0 0 320px;
+}
+
+.openings-box {
+  background: var(--lab-tint);
+  border: 1px solid var(--lab-tint-border);
+  border-radius: 8px;
+  padding: 1.5em;
+}
+
+.openings-box h2 {
+  color: var(--lab-heading);
+  font-size: 1.4em;
+  font-weight: 400;
+  margin: 0 0 1em 0;
+}
+
+.openings-box p {
+  font-size: 0.95em;
+  color: #444;
+  margin: 0.75em 0;
+}
+
+.openings-box .highlight {
+  background: var(--lab-primary);
+  color: white;
+  padding: 0.75em 1em;
+  border-radius: 4px;
+  font-weight: 500;
+  margin-bottom: 1em;
+}
+
+.btn-primary {
+  display: inline-block;
+  background: var(--lab-primary);
+  color: white !important;
+  padding: 0.6em 1.2em;
+  border-radius: 4px;
+  text-decoration: none !important;
+  font-weight: 500;
+  margin-top: 0.5em;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: var(--lab-primary-dark);
+}
+
+/* Research Highlights */
+.research-section h2 {
+  color: var(--lab-heading);
+  font-size: 1.8em;
+  font-weight: 400;
+  margin-bottom: 1em;
+  border-bottom: 1px solid var(--lab-rule);
+  padding-bottom: 0.5em;
+}
+
+.research-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5em;
+}
+
+.research-card {
+  background: #f9f9f9;
+  padding: 1.25em;
+  border-radius: 6px;
+  border-left: 3px solid var(--lab-primary);
+}
+
+.research-card h4 {
+  margin: 0 0 0.5em 0;
+  color: #333;
+  font-size: 1.05em;
+}
+
+.research-card ul {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.research-card li {
+  margin-bottom: 0.3em;
+}
+
+/* Footer */
+.site-footer {
+  margin-top: 3em;
+  padding-top: 1.5em;
+  border-top: 1px solid #ddd;
+  text-align: center;
+  font-size: 0.85em;
+  color: #888;
+}
+
+.visitor-map {
+  margin-top: 1em;
+}
+
+.visitor-map img {
+  max-width: 200px;
+  opacity: 0.8;
+}
+</style>
+
+<!-- Hero Section -->
+<div class="hero-section">
+  <h1>XD<sup>2</sup> Lab</h1>
+  <p class="tagline">Extreme-Condition Dynamics &amp; Design Lab — designing systems that operate near their instability limits</p>
+</div>
+
+<div class="main-content">
+
+<!-- Row 1: Profile + Welcome -->
+<div class="content-row">
+  <div class="profile-section">
+    <div class="profile-card">
+      <img src="/images/sicheng_utk.png" alt="Sicheng He">
+      <h3>Sicheng He</h3>
+      <div class="title">Assistant Professor</div>
+      <div class="affiliation">
+        Mechanical and Aerospace Engineering<br>
+        University of Tennessee, Knoxville
+      </div>
+      <div class="social-links">
+        <a href="https://scholar.google.com/citations?user=qS7fVDAAAAAJ&hl=en" title="Google Scholar" target="_blank"><i class="fas fa-graduation-cap"></i></a>
+        <a href="https://github.com/SichengHe" title="GitHub" target="_blank"><i class="fab fa-github"></i></a>
+        <a href="https://www.researchgate.net/profile/Sicheng-He" title="ResearchGate" target="_blank"><i class="fab fa-researchgate"></i></a>
+        <a href="https://orcid.org/0000-0003-1307-4909" title="ORCID" target="_blank"><i class="ai ai-orcid"></i></a>
+      </div>
+      <div class="contact-info">
+        <p><i class="fas fa-envelope"></i> sicheng@utk.edu</p>
+        <p><i class="fas fa-building"></i> Dougherty Engineering Bldg</p>
+        <p><i class="fas fa-map-marker-alt"></i> Knoxville, TN 37996</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="welcome-section">
+    <h2>Welcome</h2>
+    <div class="lab-callout">
+      <strong>Our mission:</strong> To develop structured and differentiable representations of complex dynamical systems that enable scalable analysis, physical insight, and optimal design.
+    </div>
+    <p>
+      The <strong>XD<sup>2</sup> Lab</strong> develops mathematical and computational frameworks to <strong>represent</strong>, <strong>interpret</strong>, and <strong>optimize</strong> complex nonlinear dynamical systems — with emphasis on engineering systems that operate near their instability limits.
+    </p>
+    <p>
+      <a href="/research/" class="btn-primary">Explore Our Research</a>
+      <a href="/group/" class="btn-primary" style="margin-left: 0.5em;">Meet the Team</a>
+    </p>
+  </div>
+</div>
+
+<!-- Row 2: News + Openings -->
+<div class="content-row">
+  <div class="news-section">
+    <h2>Latest News</h2>
+    <div class="news-item">
+      <div class="news-date">Sep 2026</div>
+      <div class="news-content"><i class="fas fa-file-alt" style="color: var(--lab-primary);"></i> Paper accepted at the NeurIPS 2026 <a href="https://representations-physical-sciences.github.io/workshop-2026/" target="_blank"><strong>Workshop on Representations for the Physical Sciences (RPS)</strong></a> in Paris.</div>
+    </div>
+    <div class="news-item">
+      <div class="news-date">Sep 2026</div>
+      <div class="news-content"><i class="fas fa-file-alt" style="color: var(--lab-primary);"></i> Paper <em>&ldquo;Hydroelastic Optimization of Submerged Composite Foils with Flutter and Ventilation Constraints&rdquo;</em> accepted in <strong>Structural and Multidisciplinary Optimization</strong> &mdash; led by Galen Ng (UMich MDO Lab).</div>
+    </div>
+    <div class="news-item">
+      <div class="news-date">Sep 2026</div>
+      <div class="news-content"><i class="fas fa-file-alt" style="color: var(--lab-primary);"></i> Paper <em>&ldquo;Efficient Adjoint-based Design Optimization with Optimal Control&rdquo;</em> accepted in the <strong>ASME Journal of Mechanical Design</strong>.</div>
+    </div>
+    <div class="news-item">
+      <div class="news-date">Aug 2026</div>
+      <div class="news-content"><i class="fas fa-file-alt" style="color: var(--lab-primary);"></i> Paper <em>&ldquo;Eigenvalue- and Gradient-Aware Optimization for Small-Signal Stability via the Adjoint Method&rdquo;</em> published in <a href="https://doi.org/10.1109/TPWRS.2026.3725599" target="_blank"><strong>IEEE Transactions on Power Systems</strong></a> &mdash; with Jianing Chen, Yan Li, and Daning Huang.</div>
+    </div>
+    <div class="news-item">
+      <div class="news-date">Aug 2026</div>
+      <div class="news-content"><i class="fas fa-trophy" style="color: var(--lab-primary);"></i> Jason Le receives the UTK <a href="https://studentsuccess.utk.edu/urf/scholarly-development-grants-sdgs/" target="_blank"><strong>Scholarly Development Grant &ndash; Research Assistant (SDG&ndash;RA) Award</strong></a> &mdash; congrats!</div>
+    </div>
+    <div class="news-item">
+      <div class="news-date">Aug 2026</div>
+      <div class="news-content"><i class="fas fa-briefcase" style="color: var(--lab-primary);"></i> Congrats to Max Howell on accepting a position at <a href="https://www.rtx.com/raytheon" target="_blank"><strong>Raytheon</strong></a> &mdash; an exciting next step!</div>
+    </div>
+    <div class="news-item">
+      <div class="news-date">Jul 2026</div>
+      <div class="news-content"><i class="fas fa-file-alt" style="color: var(--lab-primary);"></i> Rohit Kanchi to present at the prestigious <a href="https://www.nas.nasa.gov/pubs/ams.html" target="_blank"><strong>NASA Ames Applied Modeling &amp; Simulation Seminar</strong></a> on July 2.</div>
+    </div>
+    <div class="news-item">
+      <div class="news-date">Jun 2026</div>
+      <div class="news-content"><i class="fas fa-file-alt" style="color: var(--lab-primary);"></i> Paper <em>&ldquo;SurGE: Surrogate Gradient-guided Evolution for Co-design of Legged Robots with Parallel Elasticity&rdquo;</em> accepted at <strong>IROS 2026</strong> &mdash; led by <a href="https://silvery107.github.io" target="_blank">Yulun Zhuang</a> and <a href="https://sites.google.com/view/yanranding/home" target="_blank">Yanran Ding</a> (UMich).</div>
+    </div>
+    <div class="news-item">
+      <div class="news-date">Jun 2026</div>
+      <div class="news-content"><i class="fas fa-trophy" style="color: var(--lab-primary);"></i> Rohit Kanchi wins <a href="https://www.linkedin.com/feed/update/urn:li:ugcPost:7471734366985973760/" target="_blank"><strong>2026 AIAA Aviation MDO Best Student Paper Runner-Up</strong></a> (\$1,000) &mdash; <a href="https://arxiv.org/abs/2605.04884" target="_blank">paper</a>.</div>
+    </div>
+    <div class="news-item">
+      <div class="news-date">Jun 2026</div>
+      <div class="news-content"><i class="fas fa-briefcase" style="color: var(--lab-primary);"></i> Congrats to Ben Melanson on accepting a position at <a href="https://www.navsea.navy.mil/home/warfare-centers/" target="_blank"><strong>Naval Surface Warfare Center (NSWC)</strong></a> &mdash; important next step in his career!</div>
+    </div>
+    <div class="news-item">
+      <div class="news-date">Mar 2026</div>
+      <div class="news-content"><i class="fas fa-file-alt" style="color: var(--lab-primary);"></i> Paper <em>&ldquo;Training-Free Score-Based Diffusion for Parameter-Dependent Stochastic Dynamical Systems&rdquo;</em> accepted in <a href="https://doi.org/10.3934/acse.2026005" target="_blank"><strong>Advances in Computational Science and Engineering</strong></a> &mdash; with Minglei Yang.</div>
+    </div>
+    <div class="news-item">
+      <div class="news-date">Dec 2025</div>
+      <div class="news-content"><i class="fas fa-file-alt" style="color: var(--lab-primary);"></i> Rohit Kanchi and Ben Melanson presenting at <strong>NeurIPS 2025</strong>!</div>
+    </div>
+    <div class="news-item">
+      <div class="news-date">Jul 2025</div>
+      <div class="news-content"><i class="fas fa-seedling" style="color: var(--lab-primary);"></i> Seed grant from <a href="https://research.utk.edu/aitn/" target="_blank">UTK AI Tennessee Initiative</a> for AI research led by <a href="https://ne.utk.edu/people/vladimir-sobes/" target="_blank">Vladimir Sobes</a> (\$50K total, \$25K share).</div>
+    </div>
+    <div class="news-item">
+      <div class="news-date">Dec 2024</div>
+      <div class="news-content">New lab website launched!</div>
+    </div>
+    <div class="news-item">
+      <div class="news-date">Aug 2023</div>
+      <div class="news-content">Prof. He joins UTK MABE as Assistant Professor</div>
+    </div>
+    <!-- Add more news items as needed -->
+  </div>
+
+  <div class="openings-section">
+    <div class="openings-box">
+      <h2>Open Positions</h2>
+      <div class="highlight">Ph.D. positions available!</div>
+      <p>We are looking for motivated students interested in MDO, computational physics, scientific computing, and fluid mechanics.</p>
+      <p>Graduate students from MABE, EECS, ISE, and applied math at UTK are welcome to reach out.</p>
+      <a href="/opening/" class="btn-primary">View Details</a>
+    </div>
+  </div>
+</div>
+
+<!-- Research Highlights -->
+<div class="research-section">
+  <h2>Research Areas</h2>
+  <div class="research-grid">
+    <div class="research-card">
+      <h4>Structured Representations</h4>
+      <ul>
+        <li>Time-spectral methods</li>
+        <li>Torus methods for quasi-periodic dynamics</li>
+        <li>Floquet stability theory</li>
+      </ul>
+    </div>
+    <div class="research-card">
+      <h4>Operator-Theoretic Analysis</h4>
+      <ul>
+        <li>Resolvent analysis</li>
+        <li>Differentiable modal decompositions</li>
+        <li>Optimization-compatible reduced coordinates</li>
+      </ul>
+    </div>
+    <div class="research-card">
+      <h4>Optimization, Control & Learning</h4>
+      <ul>
+        <li>Adjoint-based stability optimization</li>
+        <li>Multidisciplinary design optimization</li>
+        <li>Scientific ML for inference and design</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="site-footer">
+  <p>XD<sup>2</sup> Lab &bull; University of Tennessee, Knoxville &bull; Department of MAE</p>
+  <div class="visitor-map">
+    <script>
+      window.addEventListener('load', function() {
+        var s = document.createElement('script');
+        s.id = 'mmvst_globe';
+        s.src = '//mapmyvisitors.com/globe.js?d=13fnBL0WWMasezpthb_PqVThnpZb0NI-qMs3OmztsIE';
+        document.querySelector('.visitor-map').appendChild(s);
+      });
+    </script>
+  </div>
+</div>
