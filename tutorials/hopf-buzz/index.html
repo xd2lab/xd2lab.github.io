@@ -1,0 +1,2075 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inlet Buzz Hopf Explorer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="An interactive introduction to the Hopf bifurcation behind supersonic inlet buzz: eigenvalues, bifurcation diagrams, the two-level adjoint, and design.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..650;1,8..60,400&display=swap">
+<style>
+:root {
+  /* Layout: a lab-notebook column of prose with a margin rail for section numbers; interactive plates on graph paper span the full measure */
+  --paper: #f3f5f1;
+  --plate: #fafbf8;
+  --panel: #ffffff;
+  --grid: #e2e9e4;
+  --grid-major: #d2ddd5;
+  --ink: #16202a;
+  --ink-2: #4a5661;
+  --ink-3: #75808a;
+  --rule: #d2dad4;
+  --accent: #0c675c;
+  --accent-ink: #ffffff;
+  --accent-soft: #d9ebe6;
+  --stable: #1d57a1;
+  --unstable: #bf3f29;
+  --amber: #96600e;
+  --seq-0: #f0f5f1;
+  --seq-1: #98c6b8;
+  --seq-2: #1b5461;
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --measure: 68ch;
+  --wide: 1180px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0d1215; --plate: #12191d; --panel: #161e23; --grid: #1a242a; --grid-major: #233038;
+    --ink: #e3e9ec; --ink-2: #a2aeb7; --ink-3: #78848d; --rule: #2a363d;
+    --accent: #4fc4b2; --accent-ink: #062320; --accent-soft: #15383a;
+    --stable: #74a9ff; --unstable: #ff7d62; --amber: #e2a94a;
+    --seq-0: #142028; --seq-1: #2b676a; --seq-2: #a3dccd;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0d1215; --plate: #12191d; --panel: #161e23; --grid: #1a242a; --grid-major: #233038;
+  --ink: #e3e9ec; --ink-2: #a2aeb7; --ink-3: #78848d; --rule: #2a363d;
+  --accent: #4fc4b2; --accent-ink: #062320; --accent-soft: #15383a;
+  --stable: #74a9ff; --unstable: #ff7d62; --amber: #e2a94a;
+  --seq-0: #142028; --seq-1: #2b676a; --seq-2: #a3dccd;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.62;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--paper); }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+a { color: var(--accent); text-underline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+.shell { max-width: var(--wide); margin-inline: auto; }
+/* notebook grid: rail for numbers, prose column, spare space */
+.nb { display: grid; grid-template-columns: 112px minmax(0, var(--measure)) minmax(0, 1fr); column-gap: 32px; }
+.nb > * { grid-column: 2; min-width: 0; }
+.nb > .rail { grid-column: 1; grid-row: span 3; }
+.nb > .full { grid-column: 1 / -1; }
+@media (max-width: 860px) {
+  .nb { grid-template-columns: minmax(0, 1fr); }
+  .nb > *, .nb > .rail, .nb > .full { grid-column: 1; grid-row: auto; }
+}
+
+h1, h2, h3, h4 { font-family: var(--font-display); text-wrap: balance; margin: 0; color: var(--ink); }
+h1 { font-size: clamp(2.1rem, 5.2vw, 3.7rem); font-weight: 760; font-stretch: 82%; line-height: 1.02; letter-spacing: -0.01em; }
+h2 { font-size: clamp(1.55rem, 3vw, 2.15rem); font-weight: 720; font-stretch: 88%; line-height: 1.1; margin-bottom: 0.6rem; }
+h3 { font-size: 0.86rem; font-weight: 640; font-stretch: 100%; letter-spacing: 0.01em; color: var(--ink-2); }
+h4 { font-size: 0.95rem; font-weight: 680; font-stretch: 95%; }
+p { margin: 0 0 1em; }
+.eyebrow { font-family: var(--font-display); font-stretch: 112%; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.74rem; color: var(--ink-2); margin: 0 0 0.9rem; }
+.lede { font-size: clamp(1.08rem, 1.6vw, 1.22rem); line-height: 1.55; color: var(--ink); max-width: 64ch; }
+.muted { color: var(--ink-2); }
+.small { font-size: 0.9rem; }
+.mono, output, .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+sub, sup { line-height: 0; }
+
+.rail .secno { font-family: var(--font-display); font-weight: 300; font-stretch: 70%; font-size: 5.2rem; line-height: 0.82; color: var(--ink-3); display: block; }
+.rail .seclabel { font-family: var(--font-display); font-stretch: 112%; font-weight: 600; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); display: block; margin-top: 0.5rem; }
+@media (max-width: 860px) { .rail .secno { font-size: 3rem; display: inline; } .rail .seclabel { display: inline; margin-left: 0.6rem; } }
+
+section, .sec { padding-top: 56px; }
+.linked section { scroll-margin-top: 130px; }
+header.hero { padding-top: 44px; padding-bottom: 20px; }
+header.hero h1 { max-width: 19ch; margin-bottom: 1.1rem; }
+
+/* ---------- plates ---------- */
+.plate {
+  margin: 1.4rem 0 1.6rem;
+  background-color: var(--plate);
+  background-image:
+    linear-gradient(var(--grid-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-major) 1px, transparent 1px),
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 60px 60px, 60px 60px, 12px 12px, 12px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 14px;
+  min-width: 0;
+}
+.plate-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin-bottom: 12px; }
+.plate-head .tag { font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-3); }
+.plate-head .ttl { font-family: var(--font-display); font-weight: 650; font-stretch: 95%; font-size: 1rem; }
+.plate figcaption, .caption { font-size: 0.86rem; line-height: 1.5; color: var(--ink-2); margin-top: 10px; max-width: 90ch; }
+.panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 3px; padding: 10px 10px 8px; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.panel canvas { display: block; width: 100%; touch-action: none; }
+.panel .sub { font-size: 0.82rem; color: var(--ink-2); line-height: 1.4; }
+.h-xs { height: 150px; } .h-sm { height: 190px; } .h-md { height: 250px; } .h-lg { height: 300px; }
+.g2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.g3 { display: grid; grid-template-columns: 1.05fr 1.05fr 0.9fr; gap: 12px; }
+.g-side { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+.stack { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+@media (max-width: 900px) { .g3 { grid-template-columns: 1fr 1fr; } .g3 > .wide-cell { grid-column: 1 / -1; } }
+@media (max-width: 700px) { .g2, .g3, .g-side { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- controls ---------- */
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; margin-bottom: 12px; }
+.ctl { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.ctl > label, .ctl > .lbl { font-family: var(--font-display); font-weight: 600; font-stretch: 100%; font-size: 0.84rem; color: var(--ink-2); white-space: nowrap; }
+.ctl output { font-size: 0.85rem; min-width: 5.2ch; color: var(--ink); }
+.ctl.grow { flex: 1 1 260px; }
+.slider { position: relative; flex: 1 1 auto; min-width: 120px; display: flex; align-items: center; }
+.slider input { width: 100%; }
+.slider:has(.mark) { padding-bottom: 13px; }
+.slider .mark { position: absolute; top: 0; width: 0; height: 0; pointer-events: none; }
+.slider .mark::before { content: ""; position: absolute; left: -1px; top: 2px; width: 2px; height: 18px; background: var(--unstable); opacity: 0.85; }
+.slider .mark span { position: absolute; top: 20px; left: 0; transform: translateX(-50%); font-family: var(--font-mono); font-size: 0.68rem; line-height: 1; color: var(--unstable); white-space: nowrap; }
+input[type="range"] { accent-color: var(--accent); height: 22px; margin: 0; cursor: pointer; }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; background: var(--panel); flex-wrap: wrap; }
+.seg button { font: 600 0.8rem/1 var(--font-display); font-stretch: 98%; border: 0; background: transparent; color: var(--ink-2); padding: 7px 10px; cursor: pointer; border-right: 1px solid var(--rule); }
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.seg button:hover:not([aria-pressed="true"]) { background: var(--accent-soft); color: var(--ink); }
+.btn { font: 650 0.82rem/1 var(--font-display); font-stretch: 98%; border: 1px solid var(--accent); background: transparent; color: var(--accent); border-radius: 3px; padding: 8px 12px; cursor: pointer; white-space: nowrap; }
+.btn:hover { background: var(--accent-soft); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.pill { display: inline-block; font: 600 0.72rem/1 var(--font-display); font-stretch: 105%; letter-spacing: 0.05em; text-transform: uppercase; padding: 5px 8px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+.pill.ok { color: var(--stable); background: color-mix(in srgb, var(--stable) 10%, transparent); }
+.pill.bad { color: var(--unstable); background: color-mix(in srgb, var(--unstable) 10%, transparent); }
+.pill.neutral { color: var(--ink-2); }
+
+.readout { font-size: 0.92rem; line-height: 1.5; padding: 10px 12px; background: var(--panel); border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 3px; margin-top: 12px; }
+.readout.ok { border-left-color: var(--stable); }
+.readout.bad { border-left-color: var(--unstable); }
+.readout b { font-family: var(--font-display); font-weight: 650; }
+
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 0.86rem; align-items: baseline; }
+.kv dt { color: var(--ink-2); font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; }
+.kv dd { margin: 0; font-family: var(--font-mono); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+
+/* ---------- tables ---------- */
+.tablewrap { overflow-x: auto; margin: 1rem 0 1.4rem; border: 1px solid var(--rule); border-radius: 3px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--font-display); font-weight: 650; font-size: 0.78rem; color: var(--ink-2); letter-spacing: 0.02em; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+table.live td { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+table.live td:first-child { font-family: var(--font-display); white-space: normal; }
+
+/* ---------- toc ---------- */
+.toc { display: flex; flex-wrap: wrap; gap: 8px 10px; padding: 14px 0 6px; }
+.toc a { font: 600 0.84rem/1.2 var(--font-display); font-stretch: 96%; color: var(--ink); text-decoration: none; padding: 7px 11px; border: 1px solid var(--rule); border-radius: 3px; background: var(--plate); display: inline-flex; gap: 8px; align-items: baseline; }
+.toc a span { font-family: var(--font-mono); color: var(--ink-3); font-weight: 400; }
+.toc a:hover { border-color: var(--accent); }
+
+/* ---------- hero ---------- */
+.hero-svg { width: 100%; height: auto; display: block; }
+.hero-svg text { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-2); }
+.hero-svg .lbl-strong { fill: var(--ink); font-weight: 500; }
+.hero-row { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 12px; align-items: stretch; margin-top: 10px; }
+@media (max-width: 760px) { .hero-row { grid-template-columns: minmax(0, 1fr); } }
+.hero-status { display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+.big-num { font-family: var(--font-mono); font-size: 1.5rem; line-height: 1.1; }
+
+/* ---------- math ---------- */
+.eq { overflow-x: auto; overflow-y: hidden; margin: 0.6rem 0 1.1rem; padding: 2px 0; }
+mjx-container[display="true"] { margin: 0.4em 0 !important; }
+mjx-container { max-width: 100%; }
+
+/* ---------- two-level figure ---------- */
+.levels { display: flex; flex-direction: column; gap: 0; }
+.lv { border: 1.5px solid var(--rule); border-radius: 4px; padding: 10px 12px 10px 46px; background: var(--panel); position: relative; transition: border-color .25s, box-shadow .25s; }
+.lv .step { position: absolute; left: 10px; top: 10px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 600 0.8rem/1 var(--font-mono); color: var(--accent-ink); background: var(--accent); }
+.lv p { margin: 4px 0 0; font-size: 0.9rem; }
+[data-mode="fwd"] .when-adj, [data-mode="adj"] .when-fwd { display: none !important; }
+.lv.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.lv-link { display: flex; align-items: center; gap: 10px; padding: 6px 0 6px 22px; font-size: 0.86rem; color: var(--ink-2); }
+.lv-link svg { flex: none; }
+.lv-link .arrow-up, .levels[data-mode="adj"] .lv-link .arrow-down { display: inline; }
+.lv-link .arrow-down, .levels[data-mode="adj"] .lv-link .arrow-up { display: none; }
+.inputs { font-size: 0.86rem; color: var(--ink-2); padding: 8px 0 0 22px; }
+
+.blockmat { display: grid; grid-template-columns: 2fr 3fr; grid-template-rows: 2fr 3fr; gap: 4px; aspect-ratio: 1 / 1; max-width: 320px; width: 100%; margin: 6px auto 0; }
+.blockmat > div { border: 1.5px solid var(--ink-3); border-radius: 2px; display: grid; place-items: center; text-align: center; font-size: 0.86rem; padding: 4px; background: var(--panel); min-width: 0; overflow: hidden; }
+.blockmat .b-cpl { background: color-mix(in srgb, var(--ink-3) 10%, var(--panel)); }
+.blockmat[data-mode="fwd"] [data-cell="tr"], .blockmat[data-mode="adj"] [data-cell="bl"] { border-style: dashed; color: var(--ink-3); background: transparent; }
+.blockmat .b-l1 { background: color-mix(in srgb, var(--accent) 9%, var(--panel)); }
+.blockmat .b-l2 { background: color-mix(in srgb, var(--amber) 10%, var(--panel)); }
+
+.controlbar { z-index: 6; background: var(--plate); border: 1px solid var(--rule); border-radius: 4px; padding: 10px 14px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px 18px; box-shadow: 0 6px 16px -14px rgba(0,0,0,.5); margin-top: 28px; }
+.controlbar .cb-title { grid-column: 1 / -1; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; font: 600 0.72rem/1.2 var(--font-display); font-stretch: 110%; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); }
+.controlbar .cb-title .mono { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--ink-2); }
+.controlbar .ctl { flex-wrap: nowrap; }
+@media (min-width: 761px) { .controlbar { position: sticky; top: env(safe-area-inset-top, 0px); } }
+@media (max-width: 760px) { .controlbar { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 460px) { .controlbar { grid-template-columns: minmax(0, 1fr); } }
+
+.steps { counter-reset: s; list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.steps > li { counter-increment: s; position: relative; padding-left: 34px; font-size: 0.9rem; }
+.steps > li::before { content: counter(s); position: absolute; left: 0; top: 1px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font: 600 0.75rem/1 var(--font-mono); background: var(--ink); color: var(--paper); }
+.vals { font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink); display: block; margin-top: 3px; overflow-wrap: anywhere; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.78rem; color: var(--ink-2); font-family: var(--font-display); }
+.legend i { display: inline-block; width: 18px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 5px; }
+.legend i.dash { border-top-style: dashed; }
+.legend i.dot { width: 9px; height: 9px; border: 2px solid; border-radius: 50%; }
+.legend i.fill { width: 9px; height: 9px; border-radius: 50%; border: 0; }
+
+ol.plain { padding-left: 1.2em; } ol.plain li { margin-bottom: 0.4em; }
+.refs { font-size: 0.9rem; color: var(--ink-2); }
+.refs li { margin-bottom: 0.5em; }
+footer { padding-top: 56px; }
+.backlink { display: inline-block; margin-top: 18px; font: 600 0.82rem/1 var(--font-display); text-decoration: none; }
+</style>
+
+</head>
+<body>
+<div class="shell">
+<a class="backlink" href="/tutorials/">← Tutorials · XD² Lab</a>
+<header class="hero nb">
+  <div class="full">
+    <p class="eyebrow">Tutorial · XD² Lab · University of Tennessee, Knoxville</p>
+    <h1>When does steady flow start to buzz?</h1>
+  </div>
+  <p class="lede full">A supersonic intake slows Mach 2 air through a cone shock and a terminal shock near the cowl lip. Close the throttle at the back of the duct far enough and the terminal shock stops holding still. It is pushed out onto the cone, the duct empties, the shock is swallowed, the duct refills, about a hundred times a second. This is inlet buzz. Our current work treats its onset as a Hopf bifurcation of the discretized flow equations and finds it from one eigenvalue problem instead of a long time-accurate simulation. This page builds the idea up with a two-variable model you can solve by hand, then maps each step back to the intake.</p>
+</header>
+
+<figure class="plate" id="hero-plate">
+  <div class="plate-head"><span class="tag">Fig. 0</span><span class="ttl">Axisymmetric intake of Nagashima et al. at Mach 2</span></div>
+  <svg class="hero-svg" id="inlet" viewBox="0 0 960 214" role="img" aria-label="Half-section of the axisymmetric intake: a 25 degree cone, the cowl lip, a long duct and plenum, and the throttle plug at the exit. The terminal shock sits near the cowl lip and moves when the intake buzzes."></svg>
+  <div class="hero-row">
+    <div class="panel">
+      <h3>Plenum pressure at tap P7 (slow motion, 1/50 speed)</h3>
+      <canvas id="hero-trace" class="h-xs" aria-label="Plenum pressure over the last 40 milliseconds"></canvas>
+    </div>
+    <div class="panel hero-status">
+      <div class="ctl" style="flex-wrap: wrap">
+        <label for="tr">Throttle ratio TR</label>
+        <output id="tr-out" for="tr">0.850</output>
+      </div>
+      <div class="slider"><input type="range" id="tr" min="0.75" max="1.00" step="0.005" value="0.85" aria-describedby="tr-hint"><span class="mark" id="tr-mark"><span>onset 0.881</span></span></div>
+      <div class="small muted" id="tr-hint">← close the throttle · open it →</div>
+      <div><span class="pill bad" id="tr-pill">buzz</span></div>
+      <div class="big-num" id="tr-big">0.09 P₀</div>
+      <div class="small muted" id="tr-sub">plenum swing at 115 Hz</div>
+    </div>
+  </div>
+  <figcaption>Front of the intake to scale, duct and plenum shortened (the throttle sits 635 mm behind the cone tip). The swing and frequency follow the time-accurate RANS cycles of our study: steady above TR ≈ 0.88, a swing that grows as √(0.881 − TR) just below it, and much larger cycles near TR = 0.75. TR is the throttle area over a reference throat area. The 1972 experiment starts to buzz at TR = 1.14; the model's smooth throttle passes more flow than the real valve, so its onset sits at a smaller TR.</figcaption>
+</figure>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#process"><span>1</span>The bifurcation process</a>
+  <a href="#diagram"><span>2</span>The bifurcation diagram</a>
+  <a href="#levels"><span>3</span>Two levels</a>
+  <a href="#derivative"><span>4</span>How the derivative works</a>
+  <a href="#design"><span>5</span>Design it yourself</a>
+</nav>
+
+<!-- ======================= 1 ======================= -->
+<section id="process" class="nb">
+  <div class="rail"><span class="secno">1</span><span class="seclabel">Process</span></div>
+  <h2>The bifurcation process</h2>
+  <div>
+    <p>After spatial discretization, the flow equations become a large system of ordinary differential equations, \(\dot w = f(w;\,\mathrm{TR},\,x)\), with the throttle ratio TR as the operating parameter and the cowl shape \(x\) as the design. For the intake, \(w\) holds 347,904 numbers: six per cell. Every idea we need already shows up in a system with two:</p>
+    <div class="eq">\[
+      \begin{aligned}
+      \dot w_1 &= (\mu - x_1)\,w_1 - w_2 + (2x_1x_2 - 1)\,w_1^3 + \beta,\\
+      \dot w_2 &= w_1 + (\mu - x_2)\,w_2 + (2x_2 - 1)\,w_2^3 .
+      \end{aligned}
+    \]</div>
+    <p>This model comes from our earlier paper on the stability of Hopf bifurcations (He et al., 2025), where it served to verify derivatives and to demonstrate an optimization. Here \(\mu\) is the bifurcation parameter and plays the role of throttle closure: raising \(\mu\) pushes the system toward instability, as closing the throttle does. The two design variables are \(x = (x_1, x_2)\), and \(\beta = -0.1\) is a small constant load that moves the equilibrium off the origin, as in the computations of that paper.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th></th><th>Two-variable model</th><th>Nagashima intake (RANS)</th></tr></thead>
+        <tbody>
+          <tr><td>State \(w\)</td><td>2 numbers</td><td>347,904 numbers (6 per cell)</td></tr>
+          <tr><td>Parameter</td><td>\(\mu\), unstable as it increases</td><td>throttle ratio TR, unstable as it decreases</td></tr>
+          <tr><td>Design \(x\)</td><td>\(x_1, x_2\)</td><td>12 cowl-shape variables</td></tr>
+          <tr><td>Equilibrium</td><td>\(f(w_0) = 0\) by Newton</td><td>steady RANS by Newton–Krylov</td></tr>
+          <tr><td>Linear operator</td><td>2 × 2 matrix \(A\)</td><td>Jacobian with 26.6 million nonzeros</td></tr>
+          <tr><td>Onset</td><td>\(\mu_c\)</td><td>TR<sub>c</sub> = 0.86–0.88</td></tr>
+          <tr><td>Frequency at onset</td><td>\(\omega_c \approx 0.96\) rad per unit time</td><td>112–115 Hz</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The process has three steps.</p>
+    <ol class="plain">
+      <li><strong>Equilibrium.</strong> Find \(w_0\) with \(f(w_0) = 0\). For the intake this is the steady flow with the terminal shock just inside the lip.</li>
+      <li><strong>Linearize.</strong> A small disturbance \(w = w_0 + \epsilon\, q\, e^{\lambda t}\) satisfies \(A q = \lambda q\) with \(A = \partial f/\partial w\) at \(w_0\). Each eigenvalue \(\lambda = \sigma + i\omega\) is one way a disturbance can move. It grows if the growth rate \(\sigma > 0\), decays if \(\sigma < 0\), and oscillates at angular frequency \(\omega\).</li>
+      <li><strong>Vary the parameter.</strong> At \(\mu_c\) a complex-conjugate pair crosses the imaginary axis. That crossing is a Hopf bifurcation. Past it the equilibrium is unstable, a disturbance grows, and the nonlinear terms decide what it grows into.</li>
+    </ol>
+  </div>
+  <figure class="plate full" id="p1">
+    <div class="plate-head"><span class="tag">Fig. 1</span><span class="ttl">Kick the equilibrium and watch what the eigenvalues predict</span></div>
+    <div class="controls">
+      <div class="ctl"><span class="lbl">Design</span>
+        <div class="seg" role="group" aria-label="Design" data-design-seg>
+          <button type="button" data-design="opt" aria-pressed="true">Optimized x = (1, 0.436)</button>
+          <button type="button" data-design="base" aria-pressed="false">Baseline x = (1, 1)</button>
+          <button type="button" data-design="custom" aria-pressed="false" hidden>Your design</button>
+        </div>
+      </div>
+      <div class="ctl grow"><label for="mu1">μ</label>
+        <div class="slider" data-mucmark><input type="range" id="mu1" data-bind="mu" min="-0.2" max="1.4" step="0.001" value="0.66"><span class="mark"><span>μc</span></span></div>
+        <output data-out="mu">0.660</output>
+      </div>
+      <div class="ctl"><label for="kick">Kick size</label>
+        <div class="slider" style="min-width:90px"><input type="range" id="kick" min="0.05" max="1.2" step="0.01" value="0.4"></div>
+        <output id="kick-out">0.40</output>
+      </div>
+      <div class="ctl"><button type="button" class="btn primary" id="kick-btn">Kick</button><button type="button" class="btn" id="pause-btn">Pause</button></div>
+    </div>
+    <div class="g3">
+      <div class="panel"><h3>Eigenvalues λ = σ ± iω</h3><canvas id="p1-eig" class="h-md" aria-label="Eigenvalues in the complex plane"></canvas>
+        <div class="legend"><span><i style="border-color:var(--ink-3)"></i>path as μ increases</span></div></div>
+      <div class="panel"><h3>Phase plane (w₁, w₂)</h3><canvas id="p1-phase" class="h-md" aria-label="Trajectory in the phase plane"></canvas>
+        <div class="legend"><span><i style="border-color:var(--stable)"></i>stable cycle</span><span><i class="dash" style="border-color:var(--unstable)"></i>unstable cycle</span></div></div>
+      <div class="panel wide-cell"><h3>Now</h3><dl class="kv" id="p1-kv"></dl></div>
+    </div>
+    <div class="panel" style="margin-top:12px"><h3>w₁(t) after the kick</h3><canvas id="p1-trace" class="h-sm" aria-label="Time history of w1"></canvas>
+      <div class="legend"><span><i class="dash" style="border-color:var(--ink-3)"></i>linear prediction: kick × exp(σt)</span></div></div>
+    <div class="readout" id="p1-readout" aria-live="polite"></div>
+  </figure>
+  <div>
+    <p>Try both designs. With the optimized design, crossing \(\mu_c\) gives a small, stable oscillation that grows smoothly as you go further. That is a <em>supercritical</em> Hopf bifurcation, and it is what the intake does: its RANS cycles appear at TR<sub>c</sub> with a small amplitude that grows as the throttle closes.</p>
+    <p>With the baseline design the crossing is <em>subcritical</em>. Below \(\mu_c\) the equilibrium survives small kicks, but an unstable cycle (dashed) surrounds it and a kick that lands outside escapes. Past \(\mu_c\) there is nothing nearby to settle on and every trajectory runs away. In a machine this shows up as a sudden jump to large oscillations that does not go away when you back the parameter off a little.</p>
+  </div>
+</section>
+
+<!-- ======================= 2 ======================= -->
+<section id="diagram" class="nb">
+  <div class="rail"><span class="secno">2</span><span class="seclabel">Diagram</span></div>
+  <h2>The bifurcation diagram</h2>
+  <div>
+    <p>A bifurcation diagram puts the long-time behavior at every parameter value into one picture. The horizontal axis is \(\mu\). The vertical axis is the peak-to-peak amplitude of \(w_1\) after the transients are gone. The equilibrium has zero amplitude and is drawn solid where it is stable, dashed where it is not. The cycles come from time integration started near the cycle: forward in time for a stable cycle and backward in time for an unstable one, which makes an unstable cycle attract.</p>
+    <p>Near the Hopf point the dynamics reduce to one complex amplitude \(z\), with \(w \approx w_0 + 2\,\mathrm{Re}(z\,q)\) and</p>
+    <div class="eq">\[ \dot z = (\sigma + i\omega)\,z + c_1\, z\,|z|^2 + \dots, \qquad |z|^2 = -\frac{\sigma}{\mathrm{Re}\,c_1} \ \text{ on the cycle.} \]</div>
+    <p>The growth rate \(\sigma\) passes through zero linearly at \(\mu_c\), so the squared amplitude of the cycle grows linearly too: \(A^2 \propto |\mu - \mu_c|\). The first Lyapunov coefficient \(l_1 = \mathrm{Re}\,c_1/\omega\) decides the side. With \(l_1 < 0\) stable cycles appear past \(\mu_c\) (supercritical); with \(l_1 > 0\) unstable cycles exist before it (subcritical). Computing \(l_1\) takes only the eigenvectors and the second and third derivatives of \(f\) at the Hopf point. The dotted curve below is that local prediction, and the dots come from time integration.</p>
+  </div>
+  <figure class="plate full" id="p2">
+    <div class="plate-head"><span class="tag">Fig. 2</span><span class="ttl">The two-variable model next to the intake</span></div>
+    <div class="controls">
+      <div class="ctl"><span class="lbl">Design</span>
+        <div class="seg" role="group" aria-label="Design" data-design-seg>
+          <button type="button" data-design="opt" aria-pressed="true">Optimized</button>
+          <button type="button" data-design="base" aria-pressed="false">Baseline</button>
+          <button type="button" data-design="custom" aria-pressed="false" hidden>Your design</button>
+        </div>
+      </div>
+      <div class="ctl"><span class="lbl">Vertical axis</span>
+        <div class="seg" role="group" aria-label="Amplitude or squared amplitude" id="amp-seg">
+          <button type="button" data-amp="A" aria-pressed="true">Amplitude A</button>
+          <button type="button" data-amp="A2" aria-pressed="false">A²</button>
+        </div>
+      </div>
+      <span class="small muted">Click the left diagram to set μ.</span>
+    </div>
+    <div class="g2">
+      <div class="stack">
+        <div class="panel"><h3>Model: peak-to-peak amplitude of w₁</h3><canvas id="p2-amp" class="h-md" aria-label="Bifurcation diagram of the model"></canvas>
+          <div class="legend"><span><i style="border-color:var(--stable)"></i>stable equilibrium</span><span><i class="dash" style="border-color:var(--unstable)"></i>unstable equilibrium</span><span><i class="fill" style="background:var(--stable)"></i>stable cycle</span><span><i class="dot" style="border-color:var(--unstable)"></i>unstable cycle</span><span><i class="dash" style="border-color:var(--ink-2)"></i>normal form from l₁</span></div></div>
+        <div class="panel"><h3>Model: growth rate σ of the equilibrium</h3><canvas id="p2-sig" class="h-xs" aria-label="Growth rate against mu"></canvas></div>
+      </div>
+      <div class="stack">
+        <div class="panel"><h3>Intake: peak-to-peak plenum pressure (P7)</h3><canvas id="p2-amp-in" class="h-md" aria-label="Bifurcation diagram of the intake from time-accurate RANS"></canvas>
+          <div class="legend"><span><i class="fill" style="background:var(--stable)"></i>URANS limit cycle</span><span><i class="dot" style="border-color:var(--stable)"></i>URANS run that decays</span><span><i class="dash" style="border-color:var(--ink-2)"></i>fit A² = 0.25 (0.881 − TR)</span></div></div>
+        <div class="panel"><h3>Intake: growth rate σ of the buzz mode, 1/s</h3><canvas id="p2-sig-in" class="h-xs" aria-label="Growth rate of the intake buzz mode against throttle ratio"></canvas>
+          <div class="legend"><span><i class="fill" style="background:var(--ink)"></i>eigenvalue, settled base flow</span><span><i class="dot" style="border-color:var(--ink)"></i>eigenvalue, cycle-mean flow</span><span><i class="fill" style="background:var(--amber)"></i>URANS decay</span><span>× lip-refined mesh</span></div></div>
+      </div>
+    </div>
+    <figcaption>The intake's throttle axis runs from open (left) to closed (right), so that instability lies to the right in both columns. Eigenvalues at TR = 0.97 and 0.90 use settled base flows; those at 0.88 and 0.85 use the mean flow over one cycle and only check consistency.</figcaption>
+  </figure>
+  <div>
+    <p>The intake study does not compute \(l_1\). It checks the signatures of a Hopf bifurcation directly. A time-accurate run at TR = 0.90 decays at \(\sigma = -129\) 1/s and 121 Hz, against the eigenvalue \(-160\) 1/s at 112.5 Hz. The squared plenum swings of the cycles at TR = 0.88, 0.87, and 0.85 lie on a straight line that reaches zero at TR<sub>c</sub> = 0.881, and their frequency, 114 Hz, matches the eigenvalue frequency at the crossing. Switch the axis to A² to see the straight line in both columns. Past TR = 0.80 the intake leaves the local law and jumps to large cycles, a reminder that the normal form only describes the neighborhood of the onset.</p>
+  </div>
+</section>
+
+<!-- ======================= 3 + 4 ======================= -->
+<div class="linked">
+  <div class="controlbar" id="cb" role="group" aria-label="Controls for Sections 3 and 4">
+    <div class="cb-title"><span>Controls for Sections 3 and 4</span><span class="mono" id="cb-status"></span></div>
+    <div class="ctl"><label for="mu3">μ</label><div class="slider" data-mucmark><input type="range" id="mu3" data-bind="mu" min="-0.2" max="1.4" step="0.001" value="0.66"><span class="mark"><span>μc</span></span></div><output data-out="mu">0.660</output></div>
+    <div class="ctl"><label for="x13">x₁</label><div class="slider"><input type="range" id="x13" data-bind="x1" min="0" max="1" step="0.001" value="1"></div><output data-out="x1">1.000</output></div>
+    <div class="ctl"><label for="x23">x₂</label><div class="slider"><input type="range" id="x23" data-bind="x2" min="0" max="1" step="0.001" value="0.436"></div><output data-out="x2">0.436</output></div>
+    <div class="ctl"><label for="b3">β</label><div class="slider"><input type="range" id="b3" data-bind="beta" min="-0.3" max="0.3" step="0.005" value="-0.1"></div><output data-out="beta">−0.100</output></div>
+  </div>
+
+  <section id="levels" class="nb sec">
+    <div class="rail"><span class="secno">3</span><span class="seclabel">Structure</span></div>
+    <h2>Two levels: base flow, then eigenpair</h2>
+    <div>
+      <p>The eigenvalue depends on the equilibrium, because \(A\) is evaluated at \(w_0\). The equilibrium does not depend on the eigenvalue. That one-way dependence splits the analysis into two levels.</p>
+      <p><strong>Level 1 (bottom).</strong> Solve \(f(w_0;\,\mu, x) = 0\) for the base flow.<br><strong>Level 2 (top).</strong> With \(w_0\) fixed, solve for the eigenpair \(v = (q, \lambda)\):</p>
+      <div class="eq">\[ \hat r(v;\, w_0, x) = \begin{bmatrix} A(w_0)\,q - \lambda\, q \\ c^{\mathsf T} q - 1 \end{bmatrix} = 0 . \]</div>
+      <p>The last row fixes the length and phase of \(q\), which an eigenvector does not have on its own. Here \(c = e_1\), so \(q_1 = 1\). Stacked together, the Jacobian of both levels with respect to \((w_0, v)\) is block lower triangular. The forward solve runs bottom to top. The adjoint solve, which we need for derivatives, uses the transpose, which is upper triangular, so it runs top to bottom.</p>
+    </div>
+    <figure class="plate full" id="p3">
+      <div class="plate-head"><span class="tag">Fig. 3</span><span class="ttl">The two levels, solved live for the current μ, x, and β</span></div>
+      <div class="controls">
+        <div class="ctl"><span class="lbl">Show</span>
+          <div class="seg" role="group" aria-label="Solve direction" id="mode-seg">
+            <button type="button" data-mode="fwd" aria-pressed="true">Forward solve</button>
+            <button type="button" data-mode="adj" aria-pressed="false">Adjoint solve</button>
+          </div>
+        </div>
+      </div>
+      <div class="g3">
+        <div class="panel">
+          <h3>Order of solution</h3>
+          <div class="levels" id="levels-fig" data-mode="fwd">
+            <div class="lv" id="lv2"><span class="step" data-fwd="2" data-adj="1">2</span>
+              <h4>Level 2 · eigenpair</h4>
+              <p class="when-fwd">\(\hat r(v;\, w_0, x) = 0\) gives \(\lambda = \sigma + i\omega\)</p>
+              <p class="when-adj">\(\big(\partial \hat r/\partial v\big)^{\mathsf T}\hat\psi = e_\lambda\)</p>
+            </div>
+            <div class="lv-link">
+              <svg width="18" height="30" viewBox="0 0 18 30" aria-hidden="true"><g class="arrow-up"><path d="M9 28 V4 M3 10 L9 3 L15 10" fill="none" stroke="currentColor" stroke-width="2"/></g><g class="arrow-down"><path d="M9 2 V26 M3 20 L9 27 L15 20" fill="none" stroke="currentColor" stroke-width="2"/></g></svg>
+              <span class="when-fwd">\(w_0\) passes up; nothing comes back down</span>
+              <span class="when-adj">\(\hat\psi\) passes down into the right-hand side of Level 1</span>
+            </div>
+            <div class="lv" id="lv1"><span class="step" data-fwd="1" data-adj="2">1</span>
+              <h4>Level 1 · base flow</h4>
+              <p class="when-fwd">\(f(w_0;\,\mu, x) = 0\), Newton</p>
+              <p class="when-adj">\(A^{\mathsf T}\psi = -\,\mathrm{Re}\big[(\partial \hat r/\partial w_0)^{\mathsf T}\hat\psi\big]\)</p>
+            </div>
+            <div class="inputs">Inputs to both levels: \(\mu\), \(x\)</div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Jacobian of the coupled system</h3>
+          <div class="blockmat" id="blockmat" data-mode="fwd">
+            <div class="b-l1"><span class="when-fwd">\(A\)</span><span class="when-adj">\(A^{\mathsf T}\)</span></div>
+            <div class="b-cpl" data-cell="tr"><span class="when-fwd">0</span><span class="when-adj">\(\big(\tfrac{\partial \hat r}{\partial w_0}\big)^{\mathsf T}\)</span></div>
+            <div class="b-cpl" data-cell="bl"><span class="when-fwd">\(\tfrac{\partial \hat r}{\partial w_0}\)</span><span class="when-adj">0</span></div>
+            <div class="b-l2"><span class="when-fwd">\(\tfrac{\partial \hat r}{\partial v}\)</span><span class="when-adj">\(\big(\tfrac{\partial \hat r}{\partial v}\big)^{\mathsf T}\)</span></div>
+          </div>
+          <p class="sub" style="margin-top:8px">Columns: \(w_0\) (n of them), then \(v\) (n + 1). Here n = 2. For the intake n = 347,904, and the top level is a complex system of 347,905 unknowns.</p>
+        </div>
+        <div class="panel wide-cell">
+          <h3>Level 1: Newton on f(w₀) = 0</h3>
+          <table class="live" id="newton-table"><thead><tr><th>k</th><th>w₁</th><th>w₂</th><th class="num">‖f‖</th></tr></thead><tbody></tbody></table>
+          <h3 style="margin-top:8px">Level 2: eigenpair</h3>
+          <dl class="kv" id="lv2-kv"></dl>
+        </div>
+      </div>
+    </figure>
+    <div>
+      <p>For the intake, Level 1 is the steady RANS solve with Newton–Krylov iterations, about 4 core-hours where it converges. Level 2 is a shift-and-invert Krylov–Schur solve with the exact Jacobian, which the flow solver already assembles for its adjoint: 30–46 s on 16 cores. Past the onset no steady solver reaches the unstable equilibrium, so Level 1 is the hard part, a limitation the study states openly.</p>
+    </div>
+  </section>
+
+  <section id="derivative" class="nb sec">
+    <div class="rail"><span class="secno">4</span><span class="seclabel">Derivative</span></div>
+    <h2>How the derivative works</h2>
+    <div>
+      <p>Design asks how the growth rate changes with the shape: \(d\sigma/dx\). Finite differences need one full two-level solve per design variable, and for the intake each one starts with a steady RANS run. The adjoint method gives every component of the gradient for the cost of two linear solves.</p>
+      <p>A design change acts through two paths. It changes \(A\) directly with \(w_0\) held fixed. It also moves the base flow, and \(A\) changes because it is now evaluated somewhere else. The chain rule adds the two paths, and the adjoint evaluates both without ever forming \(dw_0/dx\):</p>
+      <div class="eq">\[
+        \frac{d\sigma}{dx_k} \;=\; \underbrace{-\,\mathrm{Re}\Big(\hat\psi^{\mathsf T}\,\frac{\partial \hat r}{\partial x_k}\Big)}_{\text{Level 2: } A \text{ changes}}
+        \;\underbrace{-\;\psi^{\mathsf T}\,\frac{\partial f}{\partial x_k}}_{\text{Level 1: } w_0 \text{ moves}},
+      \]</div>
+      <div class="eq">\[
+        \Big(\frac{\partial \hat r}{\partial v}\Big)^{\mathsf T}\hat\psi = e_\lambda,
+        \qquad
+        A^{\mathsf T}\psi = -\,\mathrm{Re}\Big[\Big(\frac{\partial \hat r}{\partial w_0}\Big)^{\mathsf T}\hat\psi\Big].
+      \]</div>
+      <p>Solve for \(\hat\psi\) first, then \(\psi\), in the order the block-triangular structure sets. Two facts make this cheaper than it looks. The top-level adjoint \(\hat\psi\) turns out to be the left eigenvector of \(A\), so the first term is the textbook eigenvalue derivative \(y^{\mathsf T}(\partial A/\partial x_k)\,q \,/\, y^{\mathsf T}q\). The bottom-level system has the same matrix as a steady flow adjoint, with a right-hand side built from the second derivative of \(f\) in the direction \(q\).</p>
+    </div>
+    <figure class="plate full" id="p4">
+      <div class="plate-head"><span class="tag">Fig. 4</span><span class="ttl">The adjoint recipe with live numbers, checked against finite differences</span></div>
+      <div class="g-side">
+        <div class="panel">
+          <h3>Recipe</h3>
+          <ol class="steps">
+            <li>Top-level adjoint \(\hat\psi = (\hat\psi_{q_1}, \hat\psi_{q_2}, \hat\psi_\lambda)\)<span class="vals" id="r-psihat"></span><span class="sub">\(\hat\psi_\lambda = 0\) and \(A^{\mathsf T}\hat\psi_q = \lambda\,\hat\psi_q\): a left eigenvector.</span></li>
+            <li>Right-hand side for Level 1: \(-\mathrm{Re}\big[(\partial \hat r/\partial w_0)^{\mathsf T}\hat\psi\big]\)<span class="vals" id="r-rhs"></span><span class="sub">Built from \(6a_i w_{0,i}\,q_i\), the second derivative of \(f\). It is zero when \(w_0 = 0\).</span></li>
+            <li>Bottom-level adjoint \(\psi\) from \(A^{\mathsf T}\psi = \text{rhs}\)<span class="vals" id="r-psi"></span></li>
+            <li>Assemble \(d\sigma/dx_k\) as the sum of the two terms</li>
+          </ol>
+          <div class="tablewrap" style="margin:10px 0 0">
+            <table class="live" id="deriv-table"><thead><tr><th></th><th class="num">Level 2 term</th><th class="num">Level 1 term</th><th class="num">adjoint total</th><th class="num">finite diff.</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="panel"><h3>Distance from the finite-difference check</h3><canvas id="p4-err" class="h-sm" aria-label="Relative difference from finite differences on a log scale"></canvas>
+            <div class="legend"><span><i class="fill" style="background:var(--amber)"></i>Level 2 term only</span><span><i class="fill" style="background:var(--accent)"></i>both levels</span></div>
+            <p class="sub">Central differences with step 10⁻⁶ agree with the full adjoint to about 10⁻⁹, their own truncation error. Drag β to 0: the equilibrium returns to the origin, the Level 1 term vanishes, and both bars drop to the floor. With β ≠ 0, skipping Level 1 gives a gradient that is off in the third or fourth digit here. For a flow whose shock moves with the design, there is no reason to expect the error to stay that small.</p>
+          </div>
+        </div>
+      </div>
+    </figure>
+    <div>
+      <p>The same machinery gives \(d\sigma/d\mu\), and with it a way to find the onset without a sweep. One Newton step on \(\sigma(\mu) = 0\),</p>
+      <div class="eq">\[ \mu_{\text{new}} = \mu - \frac{\sigma}{d\sigma/d\mu}, \]</div>
+      <p>moves from a single stable base flow straight toward the Hopf point. On the intake, the slope between the equilibria at TR = 0.97 and 0.90 is \(-3.9\times 10^{3}\) 1/s per unit TR; one step from \(\sigma = -160\) 1/s at TR = 0.90 lands at TR ≈ 0.86. The adjoint supplies the slope from one base flow instead of two.</p>
+    </div>
+    <figure class="plate full" id="p4b">
+      <div class="plate-head"><span class="tag">Fig. 5</span><span class="ttl">Newton steps toward the Hopf point</span></div>
+      <div class="controls"><button type="button" class="btn primary" id="newton-btn">Take a Newton step</button><button type="button" class="btn" id="newton-reset">Restart 0.35 below μc</button><span class="small muted">Each step moves the μ slider.</span></div>
+      <div class="g-side">
+        <div class="panel"><h3>σ(μ) and the tangent at the current μ</h3><canvas id="p4-newton" class="h-md" aria-label="Growth rate against mu with the Newton tangent"></canvas></div>
+        <div class="panel"><h3>Iterates</h3><table class="live" id="newton-iters"><thead><tr><th>step</th><th class="num">μ</th><th class="num">σ</th><th class="num">dσ/dμ</th></tr></thead><tbody></tbody></table>
+          <p class="sub" id="newton-note"></p></div>
+      </div>
+    </figure>
+  </section>
+</div>
+
+<!-- ======================= 5 ======================= -->
+<section id="design" class="nb">
+  <div class="rail"><span class="secno">5</span><span class="seclabel">Design</span></div>
+  <h2>Design it yourself</h2>
+  <div>
+    <p>In the earlier paper the model was optimized to push the onset to larger \(\mu\) while keeping it supercritical:</p>
+    <div class="eq">\[ \max_{x}\ \mu_c(x) \quad \text{subject to} \quad l_1(x) \le -0.2, \qquad 0 \le x_i \le 1 . \]</div>
+    <p>The constraint matters. The baseline \(x = (1, 1)\) has a late onset, \(\mu_c = 0.985\), but it is subcritical (\(l_1 = 1.50\)) and fails without warning. The optimizer gives up some onset for a safe bifurcation and stops at \(x = (1, 0.436)\) with \(\mu_c = 0.720\) and \(l_1\) on its bound.</p>
+    <p>Drag the design point. The color shows \(\mu_c\). The red line \(l_1 = 0\) separates subcritical from supercritical designs, and the hatched region violates the constraint. The arrows are the gradients: \(\nabla\mu_c\) comes from the two-level adjoint of Section 4 through \(d\mu_c/dx = -(d\sigma/dx)/(d\sigma/d\mu)\) at the Hopf point, and \(\nabla l_1\) is computed here by finite differences (the paper derives its adjoint).</p>
+  </div>
+  <figure class="plate full" id="p5">
+    <div class="plate-head"><span class="tag">Fig. 6</span><span class="ttl">Design space of the two-variable model (β as set above)</span></div>
+    <div class="controls">
+      <button type="button" class="btn primary" id="opt-btn">Run optimizer from here</button>
+      <button type="button" class="btn" id="go-base">Baseline (1, 1)</button>
+      <button type="button" class="btn" id="go-opt">Paper optimum</button>
+      <button type="button" class="btn" id="clear-path">Clear path</button>
+    </div>
+    <div class="g-side">
+      <div class="panel"><h3>Onset μc over the design space</h3><canvas id="p5-map" style="aspect-ratio: 1 / 0.92; height: auto" aria-label="Map of the onset parameter over x1 and x2 with the stability boundary and constraint"></canvas>
+        <div class="legend"><span><i style="border-color:var(--unstable)"></i>l₁ = 0</span><span><i class="dash" style="border-color:var(--unstable)"></i>l₁ = −0.2 (constraint)</span><span><i style="border-color:var(--accent)"></i>∇μc</span><span><i style="border-color:var(--unstable);border-top-width:2px"></i>∇l₁</span><span><i style="border-color:var(--amber)"></i>optimizer path</span></div></div>
+      <div class="stack">
+        <div class="panel"><h3>Current design</h3><dl class="kv" id="p5-kv"></dl><div id="p5-pill" style="margin-top:6px"></div></div>
+        <div class="panel"><h3>Its bifurcation diagram</h3><canvas id="p5-mini" class="h-sm" aria-label="Bifurcation diagram of the current design"></canvas>
+          <p class="sub">Amplitude against μ − μc. Supercritical designs grow a stable cycle to the right; subcritical designs carry an unstable cycle to the left.</p></div>
+        <div class="panel"><h3>Optimizer log</h3><table class="live" id="opt-log"><thead><tr><th>it</th><th class="num">x₁</th><th class="num">x₂</th><th class="num">μc</th><th class="num">l₁</th></tr></thead><tbody></tbody></table>
+          <p class="sub">A small sequential quadratic programming loop: linearize μc and l₁, take the best step inside the box and the linearized constraint, repeat.</p></div>
+      </div>
+    </div>
+  </figure>
+  <div>
+    <p>The intake version of this problem is set up the same way in our study: the buzz-mode growth rate at TR = 0.90 as the objective, 12 cowl-shape variables near the lip where the mode peaks, a constraint that keeps the total-pressure recovery at its baseline, and gradients from the two-level adjoint. The size changes from 2 unknowns to 347,904; the structure of the calculation does not.</p>
+  </div>
+</section>
+
+<footer class="nb">
+  <div class="rail"><span class="seclabel">Sources</span></div>
+  <div>
+    <ol class="refs">
+      <li>S. He, M. Howell, D. Huang, E. Jonsson, G. W. Ng, J. R. R. A. Martins. Adjoint-based Hopf-bifurcation instability suppression via first Lyapunov coefficient. <a href="https://arxiv.org/abs/2511.03840">arXiv:2511.03840</a>, 2025. Source of the two-variable model and its optimization.</li>
+      <li>S. Xiao, S. He. Supersonic inlet buzz onset as an eigenvalue problem of the discretized Reynolds-averaged Navier–Stokes equations. In preparation. Source of the intake numbers.</li>
+      <li>T. Nagashima, T. Obokata, T. Asanuma. Experiment of supersonic air intake buzz. Report No. 481, Institute of Space and Aeronautical Science, University of Tokyo, 1972.</li>
+      <li>Y. A. Kuznetsov. <em>Elements of Applied Bifurcation Theory</em>, 3rd ed. Springer, 2004. Normal form and first Lyapunov coefficient.</li>
+      <li>S. He, E. Jonsson, J. R. R. A. Martins. Derivatives for eigenvalues and eigenvectors via analytic reverse algorithmic differentiation. <em>AIAA Journal</em> 60(4), 2022. <a href="https://doi.org/10.2514/1.J060726">doi:10.2514/1.J060726</a>.</li>
+    </ol>
+    <p class="small muted">Every number on the model panels is computed in your browser: Newton iterations for the equilibrium and the Hopf point, closed-form 2 × 2 eigenpairs, the two-level adjoint, the first Lyapunov coefficient from Kuznetsov's formula, and fourth-order Runge–Kutta time integration.</p>
+  </div>
+</footer>
+</div>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] },
+  svg: { fontCache: "global" },
+  options: { enableMenu: false },
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
+<script>
+// Two-state Hopf model of He et al. (arXiv:2511.03840), with the constant
+// forcing beta used in that paper's code:
+//   dw1/dt = (mu - x1) w1 - w2 + (2 x1 x2 - 1) w1^3 + beta
+//   dw2/dt = w1 + (mu - x2) w2 + (2 x2 - 1) w2^3
+const Toy = (() => {
+  // ---------- complex arithmetic ----------
+  const C = (re, im = 0) => ({ re, im });
+  const add = (a, b) => C(a.re + b.re, a.im + b.im);
+  const sub = (a, b) => C(a.re - b.re, a.im - b.im);
+  const mul = (a, b) => C(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re);
+  const div = (a, b) => {
+    const d = b.re * b.re + b.im * b.im;
+    return C((a.re * b.re + a.im * b.im) / d, (a.im * b.re - a.re * b.im) / d);
+  };
+  const conj = (a) => C(a.re, -a.im);
+  const abs = (a) => Math.hypot(a.re, a.im);
+  const scale = (a, s) => C(a.re * s, a.im * s);
+  const R = (x) => C(x, 0);
+
+  // Gaussian elimination with partial pivoting, complex entries.
+  function solveC(M, b) {
+    const n = b.length;
+    const A = M.map((row, i) => [...row.map((v) => (typeof v === "number" ? R(v) : v)), typeof b[i] === "number" ? R(b[i]) : b[i]]);
+    for (let k = 0; k < n; k++) {
+      let p = k;
+      for (let i = k + 1; i < n; i++) if (abs(A[i][k]) > abs(A[p][k])) p = i;
+      [A[k], A[p]] = [A[p], A[k]];
+      for (let i = k + 1; i < n; i++) {
+        const m = div(A[i][k], A[k][k]);
+        for (let j = k; j <= n; j++) A[i][j] = sub(A[i][j], mul(m, A[k][j]));
+      }
+    }
+    const x = new Array(n);
+    for (let i = n - 1; i >= 0; i--) {
+      let s = A[i][n];
+      for (let j = i + 1; j < n; j++) s = sub(s, mul(A[i][j], x[j]));
+      x[i] = div(s, A[i][i]);
+    }
+    return x;
+  }
+  const transpose = (M) => M[0].map((_, j) => M.map((row) => row[j]));
+  function solve2(A, b) {
+    const det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+    return [(b[0] * A[1][1] - A[0][1] * b[1]) / det, (A[0][0] * b[1] - b[0] * A[1][0]) / det];
+  }
+
+  // ---------- model ----------
+  const coef = (x) => [2 * x[0] * x[1] - 1, 2 * x[1] - 1];
+  function f(w, mu, x, beta) {
+    const [a1, a2] = coef(x);
+    return [(mu - x[0]) * w[0] - w[1] + a1 * w[0] ** 3 + beta, w[0] + (mu - x[1]) * w[1] + a2 * w[1] ** 3];
+  }
+  function jac(w, mu, x) {
+    const [a1, a2] = coef(x);
+    return [
+      [mu - x[0] + 3 * a1 * w[0] * w[0], -1],
+      [1, mu - x[1] + 3 * a2 * w[1] * w[1]],
+    ];
+  }
+  // partial derivatives with respect to the parameters p = x1, x2, mu
+  function dA(w, x, p) {
+    if (p === "x1") return [[-1 + 6 * x[1] * w[0] ** 2, 0], [0, 0]];
+    if (p === "x2") return [[6 * x[0] * w[0] ** 2, 0], [0, -1 + 6 * w[1] ** 2]];
+    return [[1, 0], [0, 1]];
+  }
+  function df(w, x, p) {
+    if (p === "x1") return [-w[0] + 2 * x[1] * w[0] ** 3, 0];
+    if (p === "x2") return [2 * x[0] * w[0] ** 3, -w[1] + 2 * w[1] ** 3];
+    return [w[0], w[1]];
+  }
+
+  // ---------- bottom level: equilibrium by Newton ----------
+  function equilibrium(mu, x, beta, guess = [0, 0]) {
+    let w = guess.slice();
+    const hist = [];
+    for (let k = 0; k < 40; k++) {
+      const r = f(w, mu, x, beta);
+      const res = Math.hypot(r[0], r[1]);
+      hist.push({ w: w.slice(), res });
+      if (res < 1e-13 || !isFinite(res)) break;
+      const d = solve2(jac(w, mu, x), r);
+      w = [w[0] - d[0], w[1] - d[1]];
+    }
+    const last = hist[hist.length - 1];
+    return { w, hist, ok: last.res < 1e-9 };
+  }
+
+  // ---------- top level: least-stable eigenpair of A, normalized c^T q = 1, c = e1 ----------
+  function eigen(A) {
+    const tr = A[0][0] + A[1][1];
+    const det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+    const disc = (tr * tr) / 4 - det;
+    const lam = disc < 0 ? C(tr / 2, Math.sqrt(-disc)) : C(tr / 2 + Math.sqrt(disc), 0);
+    const lam2 = disc < 0 ? conj(lam) : C(tr / 2 - Math.sqrt(disc), 0);
+    // row 1: (a - lam) q1 + b q2 = 0 -> q = [1, (lam - a)/b]
+    const q = [R(1), scale(sub(lam, R(A[0][0])), 1 / A[0][1])];
+    return { lam, lam2, q, complex: disc < 0 };
+  }
+
+  // ---------- two-level adjoint for sigma = Re(lambda) ----------
+  function analyze(mu, x, beta, guess) {
+    const eq = equilibrium(mu, x, beta, guess);
+    const w = eq.w;
+    const A = jac(w, mu, x);
+    const { lam, lam2, q, complex } = eigen(A);
+    const [a1, a2] = coef(x);
+    // d rhat / d v, v = [q1, q2, lambda]; rhat = [A q - lambda q; c^T q - 1]
+    const Rv = [
+      [sub(R(A[0][0]), lam), R(A[0][1]), scale(q[0], -1)],
+      [R(A[1][0]), sub(R(A[1][1]), lam), scale(q[1], -1)],
+      [R(1), R(0), R(0)],
+    ];
+    const psiHat = solveC(transpose(Rv), [R(0), R(0), R(1)]);
+    // d rhat / d w0 (only the A q rows depend on w0, through the cubic terms)
+    const Rw = [
+      [scale(q[0], 6 * a1 * w[0]), R(0)],
+      [R(0), scale(q[1], 6 * a2 * w[1])],
+      [R(0), R(0)],
+    ];
+    // bottom-level adjoint, complex form: A^T psi = -(d rhat/d w0)^T psiHat
+    const rhs = [0, 1].map((j) => scale(add(add(mul(Rw[0][j], psiHat[0]), mul(Rw[1][j], psiHat[1])), mul(Rw[2][j], psiHat[2])), -1));
+    const AT = [[A[0][0], A[1][0]], [A[0][1], A[1][1]]];
+    const pr = solve2(AT, [rhs[0].re, rhs[1].re]);
+    const pi = solve2(AT, [rhs[0].im, rhs[1].im]);
+    const psi = [C(pr[0], pi[0]), C(pr[1], pi[1])];
+    const terms = {};
+    for (const p of ["x1", "x2", "mu"]) {
+      const Ap = dA(w, x, p);
+      const Rp = [add(scale(q[0], Ap[0][0]), scale(q[1], Ap[0][1])), add(scale(q[0], Ap[1][0]), scale(q[1], Ap[1][1])), R(0)];
+      const top = scale(add(add(mul(psiHat[0], Rp[0]), mul(psiHat[1], Rp[1])), mul(psiHat[2], Rp[2])), -1);
+      const fp = df(w, x, p);
+      const bottom = scale(add(scale(psi[0], fp[0]), scale(psi[1], fp[1])), -1);
+      terms[p] = { top: top.re, bottom: bottom.re, total: top.re + bottom.re, dOmega: top.im + bottom.im };
+    }
+    return { w, eq, A, lam, lam2, q, complex, psiHat, psi: [psi[0].re, psi[1].re], Rw, terms };
+  }
+
+  const sigma = (mu, x, beta, guess) => {
+    const eq = equilibrium(mu, x, beta, guess);
+    return eigen(jac(eq.w, mu, x)).lam.re;
+  };
+
+  // ---------- Hopf point: Newton on mu with the adjoint slope d sigma / d mu ----------
+  function hopf(x, beta, mu0) {
+    let mu = mu0 ?? (x[0] + x[1]) / 2;
+    let guess = [0, 0];
+    const iters = [];
+    for (let k = 0; k < 30; k++) {
+      const a = analyze(mu, x, beta, guess);
+      guess = a.w;
+      const s = a.lam.re;
+      iters.push({ mu, sigma: s, slope: a.terms.mu.total });
+      if (Math.abs(s) < 1e-12) return { mu, omega: a.lam.im, w: a.w, A: a.A, iters, ok: a.eq.ok };
+      mu -= s / a.terms.mu.total;
+    }
+    const a = analyze(mu, x, beta, guess);
+    return { mu, omega: a.lam.im, w: a.w, A: a.A, iters, ok: Math.abs(a.lam.re) < 1e-8 };
+  }
+
+  // ---------- first Lyapunov coefficient (Kuznetsov 2004, Eq. 5.39) ----------
+  function lyapunov(x, beta, hp) {
+    hp = hp || hopf(x, beta);
+    const { A, w, omega } = hp;
+    const [a1, a2] = coef(x);
+    const a = [a1, a2];
+    const iw = C(0, omega);
+    let q = [R(1), scale(sub(iw, R(A[0][0])), 1 / A[0][1])];
+    const nq = Math.sqrt(abs(q[0]) ** 2 + abs(q[1]) ** 2);
+    q = q.map((v) => scale(v, 1 / nq));
+    // left eigenvector: A^T p = -i omega p, normalized q^* p = 1
+    const iwc = conj(iw);
+    let p = [R(A[1][0]), sub(iwc, R(A[0][0]))];
+    const s = add(mul(conj(q[0]), p[0]), mul(conj(q[1]), p[1]));
+    p = p.map((v) => div(v, s));
+    const B = (u, v) => [0, 1].map((i) => scale(mul(u[i], v[i]), 6 * a[i] * w[i]));
+    const Cc = (u, v, z) => [0, 1].map((i) => scale(mul(mul(u[i], v[i]), z[i]), 6 * a[i]));
+    const dot = (u, v) => add(mul(conj(u[0]), v[0]), mul(conj(u[1]), v[1]));
+    const qb = q.map(conj);
+    const h1 = dot(p, Cc(q, q, qb));
+    const t = solveC(A, B(q, qb));
+    const h2 = dot(p, B(q, t));
+    const M = [[sub(R(0), R(A[0][0])), R(-A[0][1])], [R(-A[1][0]), R(-A[1][1])]];
+    M[0][0] = add(M[0][0], C(0, 2 * omega));
+    M[1][1] = add(M[1][1], C(0, 2 * omega));
+    const s2 = solveC(M, B(q, q));
+    const h3 = dot(p, B(qb, s2));
+    const l1 = (h1.re - 2 * h2.re + h3.re) / (2 * omega);
+    return { l1, q, p, omega, mu: hp.mu, w };
+  }
+
+  // ---------- time integration ----------
+  function rk4(w, mu, x, beta, dt, dir = 1) {
+    const g = (v) => f(v, mu, x, beta).map((z) => dir * z);
+    const k1 = g(w);
+    const k2 = g([w[0] + 0.5 * dt * k1[0], w[1] + 0.5 * dt * k1[1]]);
+    const k3 = g([w[0] + 0.5 * dt * k2[0], w[1] + 0.5 * dt * k2[1]]);
+    const k4 = g([w[0] + dt * k3[0], w[1] + dt * k3[1]]);
+    return [w[0] + (dt / 6) * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]), w[1] + (dt / 6) * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1])];
+  }
+
+  // Settle on a cycle; dir = -1 integrates backward in time to find an unstable cycle.
+  function cycle(mu, x, beta, w0, init, dir, T = 160, dt = 0.02) {
+    let w = init.slice();
+    const n = Math.round(T / dt);
+    const tail = Math.round(25 / dt);
+    let lo = Infinity, hi = -Infinity, lo2 = Infinity, hi2 = -Infinity;
+    for (let k = 0; k < n; k++) {
+      w = rk4(w, mu, x, beta, dt, dir);
+      if (!(Math.abs(w[0]) < 6 && Math.abs(w[1]) < 6)) return { diverged: true };
+      if (k >= n - 2 * tail && k < n - tail) { lo2 = Math.min(lo2, w[0]); hi2 = Math.max(hi2, w[0]); }
+      if (k >= n - tail) { lo = Math.min(lo, w[0]); hi = Math.max(hi, w[0]); }
+    }
+    const amp = hi - lo;
+    const prev = hi2 - lo2;
+    return { amp, center: (hi + lo) / 2, state: w, settled: Math.abs(amp - prev) < 0.02 * Math.max(amp, 1e-3), shrinking: amp < 0.5 * prev };
+  }
+
+  // Branch of equilibria and cycles around the Hopf point.
+  function branch(x, beta, opts = {}) {
+    const span = opts.span ?? 0.3;
+    const N = opts.N ?? 31;
+    const simulate = opts.simulate ?? true;
+    const hp = hopf(x, beta);
+    const ly = lyapunov(x, beta, hp);
+    const sup = ly.l1 < 0;
+    const mus = Array.from({ length: N }, (_, i) => hp.mu - span + (2 * span * i) / (N - 1));
+    let guess = hp.w;
+    const eqs = mus.map((mu) => {
+      const a = analyze(mu, x, beta, guess);
+      guess = a.w;
+      return { mu, w: a.w, sigma: a.lam.re, omega: a.lam.im };
+    });
+    // normal-form estimate of the peak-to-peak amplitude of w1: 4 |z| |q1|, |z|^2 = -sigma / (omega l1)
+    const nf = eqs.map((e) => {
+      const z2 = -e.sigma / (ly.omega * ly.l1);
+      return { mu: e.mu, amp: z2 > 0 ? 4 * Math.sqrt(z2) * abs(ly.q[0]) : null };
+    });
+    const cycles = [];
+    let runaway = null;
+    if (simulate) {
+      const side = eqs.filter((e) => (sup ? e.mu > hp.mu : e.mu < hp.mu));
+      if (!sup) side.reverse();
+      let state = null;
+      for (const e of side) {
+        let init = state;
+        if (!init) {
+          const z = Math.sqrt(Math.max(-e.sigma / (ly.omega * ly.l1), 1e-6));
+          init = [e.w[0] + 2 * z * ly.q[0].re, e.w[1] + 2 * z * ly.q[1].re];
+        }
+        const c = cycle(e.mu, x, beta, e.w, init, sup ? 1 : -1);
+        if (c.diverged || c.shrinking) { runaway = e.mu; break; }
+        state = c.state;
+        cycles.push({ mu: e.mu, amp: c.amp, center: c.center, stable: sup });
+      }
+    }
+    return { hp, ly, sup, mus, eqs, nf, cycles, runaway };
+  }
+
+  // ---------- design: max mu_c s.t. l1 <= bound, 0 <= x <= 1 ----------
+  // d mu_c / dx = -(d sigma/dx) / (d sigma/d mu) at the Hopf point, from the two-level adjoint
+  function gradMuc(x, beta, hp) {
+    hp = hp || hopf(x, beta);
+    const t = analyze(hp.mu, x, beta, hp.w).terms;
+    return [-t.x1.total / t.mu.total, -t.x2.total / t.mu.total];
+  }
+  function gradL1(x, beta, h = 1e-5) {
+    const g = [];
+    for (let k = 0; k < 2; k++) {
+      const xp = x.slice(), xm = x.slice();
+      xp[k] = Math.min(1, x[k] + h);
+      xm[k] = Math.max(0, x[k] - h);
+      g.push((lyapunov(xp, beta).l1 - lyapunov(xm, beta).l1) / (xp[k] - xm[k]));
+    }
+    return g;
+  }
+  // One SQP step: maximize the linearized mu_c with a proximal term, inside the box and the
+  // linearized constraint. The 2-D QP is solved exactly by checking every active set.
+  function sqpStep(x, beta, bound = -0.2, a = 0.6) {
+    const hp = hopf(x, beta);
+    const g = gradMuc(x, beta, hp);
+    const l = lyapunov(x, beta, hp).l1;
+    const gl = gradL1(x, beta);
+    const cons = [
+      { a: gl, b: bound - l },
+      { a: [1, 0], b: 1 - x[0] }, { a: [-1, 0], b: x[0] },
+      { a: [0, 1], b: 1 - x[1] }, { a: [0, -1], b: x[1] },
+    ];
+    const obj = (d) => (0.5 / a) * (d[0] * d[0] + d[1] * d[1]) - (g[0] * d[0] + g[1] * d[1]);
+    const feas = (d) => cons.every((c) => c.a[0] * d[0] + c.a[1] * d[1] <= c.b + 1e-10);
+    const d0 = [a * g[0], a * g[1]];
+    const cands = [d0];
+    for (const c of cons) {
+      const t = (c.a[0] * d0[0] + c.a[1] * d0[1] - c.b) / (c.a[0] ** 2 + c.a[1] ** 2);
+      cands.push([d0[0] - t * c.a[0], d0[1] - t * c.a[1]]);
+    }
+    for (let i = 0; i < cons.length; i++)
+      for (let j = i + 1; j < cons.length; j++) {
+        const [p, q] = [cons[i].a, cons[j].a];
+        const det = p[0] * q[1] - p[1] * q[0];
+        if (Math.abs(det) < 1e-12) continue;
+        cands.push([(cons[i].b * q[1] - p[1] * cons[j].b) / det, (p[0] * cons[j].b - cons[i].b * q[0]) / det]);
+      }
+    let best = null, bo = Infinity;
+    for (const d of cands) if (feas(d) && obj(d) < bo) { bo = obj(d); best = d; }
+    if (!best) {
+      // the linearized constraint cannot be met inside the box: step to reduce l1
+      const n = Math.hypot(gl[0], gl[1]) || 1;
+      const y = [Math.min(1, Math.max(0, x[0] - (0.25 * gl[0]) / n)), Math.min(1, Math.max(0, x[1] - (0.25 * gl[1]) / n))];
+      best = [y[0] - x[0], y[1] - x[1]];
+    }
+    return { d: best, muc: hp.mu, l1: l, g, gl };
+  }
+
+  return { C, abs, f, jac, coef, equilibrium, eigen, analyze, sigma, hopf, lyapunov, rk4, cycle, branch, gradMuc, gradL1, sqpStep };
+})();
+if (typeof module !== "undefined") module.exports = Toy;
+
+</script>
+<script>
+(() => {
+  "use strict";
+  const T = Toy;
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ================= theme ================= */
+  const TH = {};
+  const TOKENS = ["paper", "plate", "panel", "grid", "grid-major", "ink", "ink-2", "ink-3", "rule", "accent", "accent-soft", "stable", "unstable", "amber", "seq-0", "seq-1", "seq-2"];
+  function readTheme() {
+    const cs = getComputedStyle(document.documentElement);
+    for (const k of TOKENS) TH[k] = cs.getPropertyValue("--" + k).trim();
+    TH.mono = cs.getPropertyValue("--font-mono").trim() || "monospace";
+  }
+  function rgb(hex) {
+    const h = hex.replace("#", "");
+    const v = h.length === 3 ? h.split("").map((c) => parseInt(c + c, 16)) : [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+    return v;
+  }
+  function alpha(hex, a) {
+    const [r, g, b] = rgb(hex);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  /* ================= formatting ================= */
+  const MINUS = "−";
+  function fmt(v, d = 3) {
+    if (!isFinite(v)) return "—";
+    let s = v.toFixed(d);
+    if (/^-0(\.0*)?$/.test(s)) s = s.slice(1);
+    return s.replace("-", MINUS);
+  }
+  const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  const sup = (n) => String(n).split("").map((c) => SUP[c]).join("");
+  function fmtE(v) {
+    if (v === 0) return "0";
+    if (!isFinite(v)) return "—";
+    const e = Math.floor(Math.log10(Math.abs(v)));
+    if (e >= -3 && e < 3) return fmt(v, clamp(3 - e, 0, 6));
+    return `${fmt(v / 10 ** e, 2)}×10${sup(e)}`;
+  }
+  const fmtC = (z, d = 3) => `${fmt(z.re, d)} ${z.im < 0 ? MINUS : "+"} ${Math.abs(z.im).toFixed(d)}i`;
+  const signed = (v, d = 3) => (v >= 0 ? "+" : "") + fmt(v, d);
+
+  /* ================= plotting ================= */
+  function niceTicks(a, b, n = 5) {
+    const lo = Math.min(a, b), hi = Math.max(a, b), span = hi - lo;
+    if (!(span > 0)) return [lo];
+    const raw = span / Math.max(1, n), p = 10 ** Math.floor(Math.log10(raw)), r = raw / p;
+    const step = (r < 1.5 ? 1 : r < 3 ? 2 : r < 7 ? 5 : 10) * p;
+    const out = [];
+    for (let v = Math.ceil(lo / step - 1e-9) * step; v <= hi + step * 1e-9; v += step) out.push(Math.abs(v) < step * 1e-9 ? 0 : +v.toPrecision(12));
+    return out;
+  }
+  const tickFmt = (v) => String(+v.toPrecision(6)).replace("-", MINUS);
+  const plots = [];
+  class Plot {
+    constructor(canvas, draw, margin = {}) {
+      this.cv = canvas;
+      this.ctx = canvas.getContext("2d");
+      this.drawFn = draw;
+      this.m = Object.assign({ l: 46, r: 12, t: 22, b: 36 }, margin);
+      this.xr = [0, 1];
+      this.yr = [0, 1];
+      this.visible = true;
+      this.dirty = true;
+      plots.push(this);
+      if ("ResizeObserver" in window) new ResizeObserver(() => this.fit() && this.redraw(true)).observe(canvas);
+      if ("IntersectionObserver" in window)
+        new IntersectionObserver((es) => {
+          this.visible = es[es.length - 1].isIntersecting;
+          if (this.visible && this.dirty) this.redraw(true);
+        }, { rootMargin: "200px" }).observe(canvas);
+    }
+    fit() {
+      const r = this.cv.getBoundingClientRect();
+      const d = Math.min(window.devicePixelRatio || 1, 2.5);
+      this.W = Math.max(40, r.width);
+      this.H = Math.max(40, r.height);
+      this.dpr = d;
+      const w = Math.round(this.W * d), h = Math.round(this.H * d);
+      const changed = w !== this.cv.width || h !== this.cv.height;
+      if (changed) { this.cv.width = w; this.cv.height = h; }
+      this.ctx.setTransform(d, 0, 0, d, 0, 0);
+      return changed;
+    }
+    redraw(force = false) {
+      if (!this.visible && !force) { this.dirty = true; return; }
+      this.dirty = false;
+      this.fit();
+      this.ctx.clearRect(0, 0, this.W, this.H);
+      try { this.drawFn(this); } catch (e) { console.error(e); }
+    }
+    get iw() { return this.W - this.m.l - this.m.r; }
+    get ih() { return this.H - this.m.t - this.m.b; }
+    set(xr, yr) { this.xr = xr; this.yr = yr; return this; }
+    X(x) { return this.m.l + ((x - this.xr[0]) / (this.xr[1] - this.xr[0])) * this.iw; }
+    Y(y) { return this.m.t + (1 - (y - this.yr[0]) / (this.yr[1] - this.yr[0])) * this.ih; }
+    ix(px) { return this.xr[0] + ((px - this.m.l) / this.iw) * (this.xr[1] - this.xr[0]); }
+    iy(py) { return this.yr[0] + (1 - (py - this.m.t) / this.ih) * (this.yr[1] - this.yr[0]); }
+    clip() { const c = this.ctx; c.beginPath(); c.rect(this.m.l, this.m.t - 1, this.iw + 1, this.ih + 2); c.clip(); }
+    frame({ xlabel = "", ylabel = "", xt, yt, xf = tickFmt, yf = tickFmt, grid = true, zeroY = false, zeroX = false } = {}) {
+      const c = this.ctx, l = this.m.l, t = this.m.t, R = this.W - this.m.r, B = this.H - this.m.b;
+      xt = xt || niceTicks(this.xr[0], this.xr[1], Math.max(2, Math.round(this.iw / 72)));
+      yt = yt || niceTicks(this.yr[0], this.yr[1], Math.max(2, Math.round(this.ih / 42)));
+      c.save();
+      c.lineWidth = 1;
+      if (grid) {
+        c.strokeStyle = TH.grid;
+        c.beginPath();
+        for (const v of xt) { const x = Math.round(this.X(v)) + 0.5; if (x > l + 1 && x < R) { c.moveTo(x, t); c.lineTo(x, B); } }
+        for (const v of yt) { const y = Math.round(this.Y(v)) + 0.5; if (y > t && y < B - 1) { c.moveTo(l, y); c.lineTo(R, y); } }
+        c.stroke();
+      }
+      c.strokeStyle = TH["ink-3"];
+      if (zeroY && this.yr[0] < 0 && this.yr[1] > 0) { const y = Math.round(this.Y(0)) + 0.5; c.beginPath(); c.moveTo(l, y); c.lineTo(R, y); c.stroke(); }
+      if (zeroX && Math.min(...this.xr) < 0 && Math.max(...this.xr) > 0) { const x = Math.round(this.X(0)) + 0.5; c.beginPath(); c.moveTo(x, t); c.lineTo(x, B); c.stroke(); }
+      c.strokeStyle = TH.rule;
+      c.beginPath(); c.moveTo(l + 0.5, t); c.lineTo(l + 0.5, B + 0.5); c.lineTo(R, B + 0.5); c.stroke();
+      c.font = `400 10.5px ${TH.mono}`;
+      c.fillStyle = TH["ink-3"];
+      c.strokeStyle = TH["ink-3"];
+      c.textAlign = "center"; c.textBaseline = "top";
+      for (const v of xt) {
+        const x = this.X(v);
+        if (x < l - 1 || x > R + 1) continue;
+        c.beginPath(); c.moveTo(Math.round(x) + 0.5, B); c.lineTo(Math.round(x) + 0.5, B + 4); c.stroke();
+        c.fillText(xf(v), x, B + 6);
+      }
+      c.textAlign = "right"; c.textBaseline = "middle";
+      for (const v of yt) {
+        const y = this.Y(v);
+        if (y < t - 1 || y > B + 1) continue;
+        c.beginPath(); c.moveTo(l - 4, Math.round(y) + 0.5); c.lineTo(l, Math.round(y) + 0.5); c.stroke();
+        c.fillText(yf(v), l - 6, y);
+      }
+      c.fillStyle = TH["ink-2"];
+      c.font = `500 11px ${TH.mono}`;
+      if (xlabel) { c.textAlign = "right"; c.textBaseline = "bottom"; c.fillText(xlabel, R, this.H - 1); }
+      if (ylabel) { c.textAlign = "left"; c.textBaseline = "top"; c.fillText(ylabel, 4, 3); }
+      c.restore();
+    }
+    line(pts, { color = TH.ink, width = 1.6, dash = null, a = 1, clip = true } = {}) {
+      const c = this.ctx;
+      c.save();
+      if (clip) this.clip();
+      c.globalAlpha = a;
+      c.strokeStyle = color; c.lineWidth = width; c.setLineDash(dash || []);
+      c.lineJoin = "round"; c.lineCap = "round";
+      c.beginPath();
+      let pen = false;
+      for (const p of pts) {
+        if (!p || p[1] == null || !isFinite(p[1]) || !isFinite(p[0])) { pen = false; continue; }
+        const x = this.X(p[0]), y = this.Y(p[1]);
+        if (!pen) { c.moveTo(x, y); pen = true; } else c.lineTo(x, y);
+      }
+      c.stroke();
+      c.restore();
+    }
+    dot(x, y, { r = 4, fill = TH.ink, stroke = null, lw = 1.6, clip = true } = {}) {
+      const c = this.ctx;
+      c.save();
+      if (clip) this.clip();
+      c.beginPath(); c.arc(this.X(x), this.Y(y), r, 0, 2 * Math.PI);
+      if (fill) { c.fillStyle = fill; c.fill(); }
+      if (stroke) { c.strokeStyle = stroke; c.lineWidth = lw; c.stroke(); }
+      c.restore();
+    }
+    cross(x, y, { r = 4.5, color = TH.ink, lw = 1.8 } = {}) {
+      const c = this.ctx, X = this.X(x), Y = this.Y(y);
+      c.save(); c.strokeStyle = color; c.lineWidth = lw;
+      c.beginPath(); c.moveTo(X - r, Y - r); c.lineTo(X + r, Y + r); c.moveTo(X + r, Y - r); c.lineTo(X - r, Y + r); c.stroke();
+      c.restore();
+    }
+    vline(x, { color = TH["ink-3"], width = 1, dash = null, a = 1 } = {}) {
+      const c = this.ctx, X = Math.round(this.X(x)) + 0.5;
+      if (X < this.m.l - 1 || X > this.W - this.m.r + 1) return;
+      c.save(); c.globalAlpha = a; c.strokeStyle = color; c.lineWidth = width; c.setLineDash(dash || []);
+      c.beginPath(); c.moveTo(X, this.m.t); c.lineTo(X, this.H - this.m.b); c.stroke(); c.restore();
+    }
+    band(x0, x1, color) {
+      const c = this.ctx;
+      c.save(); this.clip();
+      const a = this.X(x0), b = this.X(x1);
+      c.fillStyle = color; c.fillRect(Math.min(a, b), this.m.t, Math.abs(b - a), this.ih);
+      c.restore();
+    }
+    text(s, x, y, { color = TH["ink-2"], align = "left", base = "middle", size = 10.5, weight = 500, bg = null, px = false, dx = 0, dy = 0 } = {}) {
+      const c = this.ctx;
+      c.save();
+      c.font = `${weight} ${size}px ${TH.mono}`;
+      c.textAlign = align; c.textBaseline = base;
+      const X = (px ? x : this.X(x)) + dx, Y = (px ? y : this.Y(y)) + dy;
+      if (bg) {
+        const w = c.measureText(s).width;
+        const ox = align === "center" ? -w / 2 : align === "right" ? -w : 0;
+        const oy = base === "top" ? 0 : base === "bottom" ? -size : -size / 2;
+        c.fillStyle = bg; c.fillRect(X + ox - 3, Y + oy - 2, w + 6, size + 4);
+      }
+      c.fillStyle = color; c.fillText(s, X, Y);
+      c.restore();
+    }
+  }
+  function arrow(ctx, x0, y0, x1, y1, color, width = 2) {
+    const a = Math.atan2(y1 - y0, x1 - x0), h = 7;
+    ctx.save();
+    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = width; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - Math.cos(a) * h * 0.6, y1 - Math.sin(a) * h * 0.6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x1, y1);
+    ctx.lineTo(x1 - h * Math.cos(a - 0.45), y1 - h * Math.sin(a - 0.45));
+    ctx.lineTo(x1 - h * Math.cos(a + 0.45), y1 - h * Math.sin(a + 0.45));
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
+  /* ================= state ================= */
+  const DES = { opt: [1, 0.4359], base: [1, 1] };
+  const MU_RANGE = [-0.2, 1.4];
+  const S = { mu: 0.66, x: DES.opt.slice(), beta: -0.1, kick: 0.4, amp: "A", tr: 0.85, newton: [], path: [] };
+  const D = {};
+  let dragging = false;
+  let fullTimer = null;
+
+  function recomputeDesign(fast = false) {
+    D.hp = T.hopf(S.x, S.beta);
+    D.ly = T.lyapunov(S.x, S.beta, D.hp);
+    D.sup = D.ly.l1 < 0;
+    D.br = T.branch(S.x, S.beta, { N: fast ? 25 : 41, span: 0.3, simulate: !fast });
+    D.brFast = fast;
+    D.eigPath = [];
+    let g = [0, 0];
+    for (let i = 0; i <= 200; i++) {
+      const mu = MU_RANGE[0] + ((MU_RANGE[1] - MU_RANGE[0]) * i) / 200;
+      const eq = T.equilibrium(mu, S.x, S.beta, g);
+      g = eq.w;
+      D.eigPath.push({ mu, lam: T.eigen(T.jac(eq.w, mu, S.x)).lam });
+    }
+    D.gMuc = T.gradMuc(S.x, S.beta, D.hp);
+    D.gL1 = T.gradL1(S.x, S.beta);
+  }
+
+  function orbitAt(mu) {
+    const onSide = D.sup ? mu > D.hp.mu : mu < D.hp.mu;
+    if (!onSide) return null;
+    const e = D.an;
+    const z2 = -e.lam.re / (D.ly.omega * D.ly.l1);
+    if (!(z2 > 0)) return null;
+    const z = Math.sqrt(z2);
+    const init = [e.w[0] + 2 * z * D.ly.q[0].re, e.w[1] + 2 * z * D.ly.q[1].re];
+    const dir = D.sup ? 1 : -1;
+    const c = T.cycle(mu, S.x, S.beta, e.w, init, dir, 140, 0.02);
+    if (c.diverged || c.shrinking) return null;
+    const pts = [];
+    let w = c.state;
+    const period = (2 * Math.PI) / Math.abs(e.lam.im || D.hp.omega);
+    const n = Math.ceil((period * 1.06) / 0.02);
+    for (let k = 0; k < n; k++) { w = T.rk4(w, mu, S.x, S.beta, 0.02, dir); pts.push(w); }
+    let hi = -Infinity, lo = Infinity, reach = 0;
+    for (const p of pts) { hi = Math.max(hi, p[0]); lo = Math.min(lo, p[0]); reach = Math.max(reach, Math.hypot(p[0] - e.w[0], p[1] - e.w[1])); }
+    return { pts, stable: D.sup, hi, lo, amp: hi - lo, reach };
+  }
+
+  function recomputePoint() {
+    D.an = T.analyze(S.mu, S.x, S.beta, [0, 0]);
+    const h = 1e-6, x = S.x, mu = S.mu, b = S.beta;
+    D.fd = {
+      x1: (T.sigma(mu, [x[0] + h, x[1]], b) - T.sigma(mu, [x[0] - h, x[1]], b)) / (2 * h),
+      x2: (T.sigma(mu, [x[0], x[1] + h], b) - T.sigma(mu, [x[0], x[1] - h], b)) / (2 * h),
+      mu: (T.sigma(mu + h, x, b) - T.sigma(mu - h, x, b)) / (2 * h),
+    };
+    D.orbit = orbitAt(S.mu);
+    const ext = Math.max(0.3, D.orbit ? D.orbit.reach : 0, S.kick * 1.1);
+    const steps = [0.5, 0.75, 1, 1.5, 2, 2.5, 3, 4];
+    D.R = steps.find((s) => s >= ext * 1.15) || 4;
+  }
+
+  /* ================= scheduling ================= */
+  let rafPending = false;
+  const dirty = new Set();
+  function invalidate(...keys) {
+    for (const k of keys) dirty.add(k);
+    if (!rafPending) { rafPending = true; requestAnimationFrame(flush); }
+  }
+  function flush() {
+    rafPending = false;
+    const keys = new Set(dirty);
+    dirty.clear();
+    if (keys.has("map")) heatCache = null;
+    syncControls();
+    renderText();
+    for (const p of plots) if (p !== heroPlot) p.redraw();
+  }
+
+  function setState(ch, opts = {}) {
+    const designChanged = "x" in ch || "beta" in ch;
+    Object.assign(S, ch);
+    if (!opts.keepNewton && ("mu" in ch || designChanged)) S.newton = [];
+    if (designChanged) {
+      if (dragging) {
+        recomputeDesign(true);
+        clearTimeout(fullTimer);
+      } else {
+        recomputeDesign(false);
+      }
+      if ("beta" in ch) scheduleMap();
+    }
+    recomputePoint();
+    if ("x" in ch && !opts.keepSim) kick();
+    invalidate("all");
+  }
+  function finishDrag() {
+    dragging = false;
+    clearTimeout(fullTimer);
+    fullTimer = setTimeout(() => { recomputeDesign(false); recomputePoint(); invalidate("all"); }, 30);
+  }
+
+  /* ================= controls ================= */
+  function syncControls() {
+    for (const inp of $$("input[data-bind]")) {
+      const k = inp.dataset.bind;
+      const v = k === "x1" ? S.x[0] : k === "x2" ? S.x[1] : S[k];
+      if (Math.abs(parseFloat(inp.value) - v) > 1e-9) inp.value = v;
+    }
+    for (const o of $$("output[data-out]")) {
+      const k = o.dataset.out;
+      const v = k === "x1" ? S.x[0] : k === "x2" ? S.x[1] : S[k];
+      o.textContent = fmt(v, 3);
+    }
+    const pct = (D.hp.mu - MU_RANGE[0]) / (MU_RANGE[1] - MU_RANGE[0]);
+    for (const m of $$("[data-mucmark] .mark")) {
+      m.style.left = `calc(8px + ${clamp(pct, 0, 1)} * (100% - 16px))`;
+      m.hidden = pct < 0 || pct > 1;
+    }
+    const which = sameX(S.x, DES.opt) ? "opt" : sameX(S.x, DES.base) ? "base" : "custom";
+    for (const seg of $$("[data-design-seg]")) {
+      for (const b of $$("button", seg)) {
+        b.setAttribute("aria-pressed", String(b.dataset.design === which));
+        if (b.dataset.design === "custom") {
+          b.hidden = which !== "custom";
+          b.textContent = `Your design (${fmt(S.x[0], 2)}, ${fmt(S.x[1], 2)})`;
+        }
+      }
+    }
+    $("#kick-out").textContent = fmt(S.kick, 2);
+  }
+  const sameX = (a, b) => Math.abs(a[0] - b[0]) < 1e-6 && Math.abs(a[1] - b[1]) < 1e-6;
+
+  function bindControls() {
+    for (const inp of $$("input[data-bind]")) {
+      inp.addEventListener("input", () => {
+        const k = inp.dataset.bind, v = parseFloat(inp.value);
+        if (k !== "mu") cancelOptimizer();
+        if (k === "x1" || k === "x2") {
+          const x = S.x.slice();
+          x[k === "x1" ? 0 : 1] = v;
+          dragging = true;
+          setState({ x }, { keepSim: true });
+        } else if (k === "beta") {
+          dragging = true;
+          setState({ beta: v });
+        } else setState({ [k]: v });
+      });
+      inp.addEventListener("change", () => { if (dragging) { finishDrag(); kick(); } });
+    }
+    for (const seg of $$("[data-design-seg]")) {
+      seg.addEventListener("click", (e) => {
+        const b = e.target.closest("button");
+        if (!b || b.dataset.design === "custom") return;
+        cancelOptimizer();
+        setState({ x: DES[b.dataset.design].slice() });
+      });
+    }
+    $("#amp-seg").addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if (!b) return;
+      S.amp = b.dataset.amp;
+      for (const x of $$("button", $("#amp-seg"))) x.setAttribute("aria-pressed", String(x === b));
+      invalidate("all");
+    });
+    $("#kick").addEventListener("input", (e) => { S.kick = parseFloat(e.target.value); recomputePoint(); invalidate("all"); });
+    $("#kick-btn").addEventListener("click", () => { kick(); invalidate("all"); });
+    $("#pause-btn").addEventListener("click", (e) => {
+      sim.paused = !sim.paused;
+      e.target.textContent = sim.paused ? "Play" : "Pause";
+    });
+    if (reduceMotion) $("#pause-btn").hidden = true;
+    $("#mode-seg").addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if (!b) return;
+      for (const x of $$("button", $("#mode-seg"))) x.setAttribute("aria-pressed", String(x === b));
+      setMode(b.dataset.mode);
+    });
+    $("#newton-btn").addEventListener("click", () => {
+      const s = D.an.terms.mu.total, sg = D.an.lam.re;
+      S.newton.push({ mu: S.mu, sigma: sg, slope: s });
+      setState({ mu: clamp(S.mu - sg / s, MU_RANGE[0], MU_RANGE[1]) }, { keepNewton: true });
+    });
+    $("#newton-reset").addEventListener("click", () => setState({ mu: clamp(D.hp.mu - 0.35, MU_RANGE[0], MU_RANGE[1]) }));
+    $("#go-base").addEventListener("click", () => { cancelOptimizer(); setState({ x: DES.base.slice() }); });
+    $("#go-opt").addEventListener("click", () => { cancelOptimizer(); setState({ x: DES.opt.slice() }); });
+    $("#clear-path").addEventListener("click", () => { cancelOptimizer(); S.path = []; invalidate("all"); });
+    $("#opt-btn").addEventListener("click", runOptimizer);
+    $("#tr").addEventListener("input", (e) => { S.tr = parseFloat(e.target.value); heroText(); if (reduceMotion) heroStatic(); });
+  }
+
+  function setMode(mode) {
+    $("#levels-fig").dataset.mode = mode;
+    $("#blockmat").dataset.mode = mode;
+    for (const s of $$("#levels-fig .step")) s.textContent = s.dataset[mode];
+    const order = mode === "fwd" ? ["#lv1", "#lv2"] : ["#lv2", "#lv1"];
+    for (const id of ["#lv1", "#lv2"]) $(id).classList.remove("active");
+    if (reduceMotion) { $(order[0]).classList.add("active"); return; }
+    $(order[0]).classList.add("active");
+    setTimeout(() => { $(order[0]).classList.remove("active"); $(order[1]).classList.add("active"); }, 700);
+    setTimeout(() => $(order[1]).classList.remove("active"), 1700);
+  }
+
+  /* ================= text readouts ================= */
+  function kv(el, rows) {
+    el.innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
+  }
+  function renderText() {
+    const a = D.an, hp = D.hp, ly = D.ly;
+    const sg = a.lam.re, om = Math.abs(a.lam.im);
+    // section 1
+    kv($("#p1-kv"), [
+      ["μ", fmt(S.mu)],
+      ["μ<sub>c</sub>", fmt(hp.mu)],
+      ["σ", signed(sg)],
+      ["ω", fmt(om)],
+      ["period", a.complex ? fmt((2 * Math.PI) / om, 2) : "—"],
+      ["l₁", signed(ly.l1)],
+      ["onset", D.sup ? "supercritical" : "subcritical"],
+    ]);
+    const ro = $("#p1-readout");
+    let html, cls;
+    if (sg < 0 && D.sup) {
+      cls = "ok";
+      html = `<b>Stable.</b> σ = ${fmt(sg)} &lt; 0, so the kick decays by a factor e every ${fmt(-1 / sg, 1)} time units, about ${fmt(-1 / sg / ((2 * Math.PI) / om), 1)} oscillation periods. Move μ past μ<sub>c</sub> = ${fmt(hp.mu)} to destabilize it.`;
+    } else if (sg >= 0 && D.sup) {
+      cls = "bad";
+      html = D.orbit
+        ? `<b>Unstable, supercritical.</b> σ = ${signed(sg)} &gt; 0, so the kick grows until the cubic terms stop it on a stable cycle with peak-to-peak amplitude ${fmt(D.orbit.amp, 2)}. That cycle is this model's buzz.`
+        : `<b>Unstable.</b> σ = ${signed(sg)} &gt; 0, and this far past μ<sub>c</sub> the cycle no longer holds: trajectories run away.`;
+    } else if (sg < 0) {
+      cls = "bad";
+      html = D.orbit
+        ? `<b>Stable to small kicks, subcritical.</b> σ = ${fmt(sg)} &lt; 0, but an unstable cycle surrounds the equilibrium (dashed). Kicks that reach about ${fmt(D.orbit.hi - a.w[0], 2)} in w₁ land outside it and run away. Try a larger kick.`
+        : `<b>Stable, subcritical design.</b> σ = ${fmt(sg)} &lt; 0. Far below μ<sub>c</sub> the unstable cycle is large, so ordinary kicks decay.`;
+    } else {
+      cls = "bad";
+      html = `<b>Unstable, subcritical.</b> σ = ${signed(sg)} &gt; 0 and no stable cycle exists nearby, so every kick runs away. This is the jump a subcritical onset produces.`;
+    }
+    if (sim.status === "away") html += ` <span class="muted">This trajectory ran away; press Kick to restart.</span>`;
+    ro.className = "readout " + cls;
+    ro.innerHTML = html;
+
+    // control bar
+    $("#cb-status").textContent = `μc = ${fmt(hp.mu)} · σ = ${signed(sg)} · l₁ = ${signed(ly.l1)}`;
+
+    // section 3
+    const tb = $("#newton-table tbody");
+    tb.innerHTML = a.eq.hist.map((h, k) => `<tr><td>${k}</td><td>${fmt(h.w[0], 5)}</td><td>${fmt(h.w[1], 5)}</td><td class="num">${fmtE(h.res)}</td></tr>`).join("");
+    const A = a.A;
+    kv($("#lv2-kv"), [
+      ["A", `[${fmt(A[0][0])}, ${fmt(A[0][1])}; ${fmt(A[1][0])}, ${fmt(A[1][1])}]`],
+      ["λ", fmtC(a.lam)],
+      ["q", `(1, ${fmtC(a.q[1])})`],
+      ["σ = Re λ", signed(sg, 5)],
+    ]);
+
+    // section 4
+    const ph = a.psiHat;
+    $("#r-psihat").textContent = `(${fmtC(ph[0], 4)},  ${fmtC(ph[1], 4)},  ${fmtC(ph[2], 4)})`;
+    const rhs = [-(a.Rw[0][0].re * ph[0].re - a.Rw[0][0].im * ph[0].im), -(a.Rw[1][1].re * ph[1].re - a.Rw[1][1].im * ph[1].im)];
+    $("#r-rhs").textContent = `(${fmt(rhs[0], 5)},  ${fmt(rhs[1], 5)})`;
+    $("#r-psi").textContent = `(${fmt(a.psi[0], 5)},  ${fmt(a.psi[1], 5)})`;
+    const names = { x1: "dσ/dx₁", x2: "dσ/dx₂", mu: "dσ/dμ" };
+    $("#deriv-table tbody").innerHTML = ["x1", "x2", "mu"]
+      .map((p) => {
+        const t = a.terms[p];
+        return `<tr><td>${names[p]}</td><td class="num">${fmt(t.top, 6)}</td><td class="num">${fmt(t.bottom, 6)}</td><td class="num">${fmt(t.total, 6)}</td><td class="num">${fmt(D.fd[p], 6)}</td></tr>`;
+      })
+      .join("");
+
+    // newton iterates
+    const rows = S.newton.map((n, k) => `<tr><td>${k}</td><td class="num">${fmt(n.mu, 6)}</td><td class="num">${fmtE(n.sigma)}</td><td class="num">${fmt(n.slope, 4)}</td></tr>`);
+    rows.push(`<tr style="font-weight:600"><td>${S.newton.length} (now)</td><td class="num">${fmt(S.mu, 6)}</td><td class="num">${fmtE(sg)}</td><td class="num">${fmt(a.terms.mu.total, 4)}</td></tr>`);
+    $("#newton-iters tbody").innerHTML = rows.join("");
+    $("#newton-note").innerHTML =
+      Math.abs(sg) < 1e-9
+        ? `On the Hopf point: |σ| &lt; 10⁻⁹ after ${S.newton.length} step${S.newton.length === 1 ? "" : "s"}. The Level 2 part of dσ/dμ is exactly 1 because μ enters A as μI; the rest of the slope, ${signed(a.terms.mu.bottom, 4)}, comes from the base flow moving.`
+        : `The Level 2 part of dσ/dμ is exactly 1 because μ enters A as μI; the rest of the slope, ${signed(a.terms.mu.bottom, 4)}, comes from the base flow moving.`;
+
+    // section 5
+    kv($("#p5-kv"), [
+      ["x", `(${fmt(S.x[0])}, ${fmt(S.x[1])})`],
+      ["μ<sub>c</sub>", fmt(hp.mu, 4)],
+      ["ω<sub>c</sub>", fmt(hp.omega, 4)],
+      ["l₁", signed(ly.l1, 4)],
+      ["∇μ<sub>c</sub>", `(${fmt(D.gMuc[0])}, ${fmt(D.gMuc[1])})`],
+      ["∇l₁", `(${fmt(D.gL1[0])}, ${fmt(D.gL1[1])})`],
+    ]);
+    const feas = ly.l1 <= -0.2 + 1e-4;
+    $("#p5-pill").innerHTML = `<span class="pill ${D.sup ? "ok" : "bad"}">${D.sup ? "supercritical" : "subcritical"}</span> <span class="pill ${feas ? "ok" : "bad"}">${feas ? "constraint met" : "constraint violated"}</span>`;
+    $("#opt-log tbody").innerHTML = S.path.length
+      ? S.path.map((p, k) => `<tr><td>${k}</td><td class="num">${fmt(p.x[0], 4)}</td><td class="num">${fmt(p.x[1], 4)}</td><td class="num">${fmt(p.muc, 4)}</td><td class="num">${fmt(p.l1, 4)}</td></tr>`).join("")
+      : `<tr><td colspan="5" class="muted" style="font-family:var(--font-body)">Press “Run optimizer from here”.</td></tr>`;
+  }
+
+  /* ================= section 1: live simulation ================= */
+  const sim = { w: [0, 0], t: 0, hist: [], status: "run", paused: false };
+  function kick() {
+    const w0 = D.an.w;
+    sim.w = [w0[0] + S.kick, w0[1]];
+    sim.t = 0;
+    sim.k0 = S.kick;
+    sim.hist = [{ t: 0, w: sim.w.slice() }];
+    sim.status = "run";
+    if (reduceMotion) advance(60, 0.01);
+  }
+  function advance(span, h = 0.01) {
+    let left = span;
+    let k = 0;
+    while (left > 1e-12 && sim.status === "run") {
+      const dt = Math.min(h, left);
+      sim.w = T.rk4(sim.w, S.mu, S.x, S.beta, dt);
+      sim.t += dt;
+      left -= dt;
+      if (!(Math.abs(sim.w[0]) < 6 && Math.abs(sim.w[1]) < 6)) { sim.status = "away"; invalidate("text"); }
+      if (++k % 4 === 0) sim.hist.push({ t: sim.t, w: sim.w.slice() });
+    }
+    sim.hist.push({ t: sim.t, w: sim.w.slice() });
+    const cut = sim.t - 62;
+    let i = 0;
+    while (i < sim.hist.length && sim.hist[i].t < cut) i++;
+    if (i > 0) sim.hist.splice(0, i);
+  }
+
+  function drawEig(p) {
+    const lam = D.an.lam;
+    p.set([-0.6, 0.6], [-1.3, 1.3]);
+    p.band(0, 0.6, alpha(TH.unstable, 0.07));
+    p.frame({ xlabel: "σ", ylabel: "ω", zeroX: true, zeroY: true, xt: [-0.5, -0.25, 0, 0.25, 0.5], yt: [-1, -0.5, 0, 0.5, 1] });
+    p.text("stable", -0.57, 1.18, { color: TH.stable, size: 10.5 });
+    p.text("unstable", 0.57, 1.18, { color: TH.unstable, size: 10.5, align: "right" });
+    const up = D.eigPath.map((e) => [e.lam.re, e.lam.im]);
+    const dn = D.eigPath.map((e) => [e.lam.re, -e.lam.im]);
+    p.line(up, { color: TH["ink-3"], width: 1.2 });
+    p.line(dn, { color: TH["ink-3"], width: 1.2 });
+    // direction arrow on the path
+    const k = D.eigPath.findIndex((e) => e.lam.re > 0.3);
+    if (k > 1) {
+      const a0 = D.eigPath[k - 1].lam, a1 = D.eigPath[k].lam;
+      arrow(p.ctx, p.X(a0.re), p.Y(a0.im), p.X(a1.re) + (p.X(a1.re) - p.X(a0.re)) * 2, p.Y(a1.im) + (p.Y(a1.im) - p.Y(a0.im)) * 2, TH["ink-3"], 1.2);
+    }
+    p.text(`iωc = ${fmt(D.hp.omega, 3)}i`, 0, D.hp.omega, { dx: 7, dy: -9, color: TH["ink-2"], size: 10 });
+    const col = lam.re < 0 ? TH.stable : TH.unstable;
+    const cx = clamp(lam.re, -0.6, 0.6);
+    p.dot(cx, lam.im, { r: 6, fill: col, stroke: TH.panel, lw: 2 });
+    p.dot(cx, -lam.im, { r: 6, fill: col, stroke: TH.panel, lw: 2 });
+    p.text("λ", cx, lam.im, { dx: 9, dy: 8, color: col, size: 12, weight: 600 });
+    p.text("λ̄", cx, -lam.im, { dx: 9, dy: -8, color: col, size: 12, weight: 600 });
+  }
+
+  function phaseRange(p) {
+    const w0 = D.an.w, R = D.R;
+    const k = p.ih / p.iw;
+    return [[w0[0] - R, w0[0] + R], [w0[1] - R * k, w0[1] + R * k]];
+  }
+  function drawPhase(p) {
+    const [xr, yr] = phaseRange(p);
+    p.set(xr, yr);
+    p.frame({ xlabel: "w₁", ylabel: "w₂" });
+    if (D.orbit) {
+      const pts = D.orbit.pts.map((w) => [w[0], w[1]]);
+      p.line(pts, D.orbit.stable ? { color: TH.stable, width: 2.2 } : { color: TH.unstable, width: 2, dash: [6, 5] });
+    }
+    const H = sim.hist;
+    if (H.length > 1) {
+      const chunks = 8, n = H.length;
+      for (let c = 0; c < chunks; c++) {
+        const s = Math.floor((c * (n - 1)) / chunks), e = Math.floor(((c + 1) * (n - 1)) / chunks) + 1;
+        p.line(H.slice(s, e).map((h) => h.w), { color: TH.ink, width: 1.4, a: 0.12 + (0.88 * (c + 1)) / chunks });
+      }
+    }
+    const w0 = D.an.w, st = D.an.lam.re < 0;
+    p.dot(w0[0], w0[1], { r: 4.5, fill: st ? TH.ink : TH.panel, stroke: TH.ink, lw: 1.6 });
+    p.dot(sim.w[0], sim.w[1], { r: 4.5, fill: TH.accent, stroke: TH.panel, lw: 1.5 });
+    if (sim.status === "away") p.text("ran away", p.W - p.m.r - 6, p.m.t + 10, { px: true, align: "right", color: TH.unstable, weight: 600 });
+  }
+
+  function drawTrace(p) {
+    const t1 = Math.max(60, sim.t), t0 = t1 - 60;
+    const w0 = D.an.w, R = D.R;
+    p.set([t0, t1], [w0[0] - R, w0[0] + R]);
+    p.frame({ xlabel: "t", ylabel: "w₁" });
+    p.line([[t0, w0[0]], [t1, w0[0]]], { color: TH["ink-3"], width: 1, dash: [2, 4] });
+    if (D.orbit) {
+      const o = D.orbit, st = { color: o.stable ? TH.stable : TH.unstable, width: 1.2, dash: o.stable ? null : [6, 5], a: 0.8 };
+      p.line([[t0, o.hi], [t1, o.hi]], st);
+      p.line([[t0, o.lo], [t1, o.lo]], st);
+    }
+    // linear prediction: amplitude kick * e^{sigma t}
+    const sg = D.an.lam.re, env = [], env2 = [];
+    for (let i = 0; i <= 120; i++) {
+      const t = (i / 120) * t1;
+      if (t < t0) continue;
+      const a = sim.k0 * Math.exp(sg * t);
+      env.push([t, w0[0] + a]);
+      env2.push([t, w0[0] - a]);
+    }
+    p.line(env, { color: TH["ink-3"], width: 1, dash: [4, 4] });
+    p.line(env2, { color: TH["ink-3"], width: 1, dash: [4, 4] });
+    p.line(sim.hist.map((h) => [h.t, h.w[0]]), { color: TH.ink, width: 1.6 });
+  }
+
+  /* ================= section 2 ================= */
+  const A2 = () => S.amp === "A2";
+  function drawAmp(p) {
+    const br = D.br, mc = br.hp.mu, sq = A2();
+    const val = (a) => (a == null ? null : sq ? a * a : a);
+    let ymax = 0.2;
+    for (const c of br.cycles) ymax = Math.max(ymax, val(c.amp));
+    for (const n of br.nf) if (n.amp != null) ymax = Math.max(ymax, Math.min(val(n.amp), sq ? 12 : 3.5));
+    p.set([mc - 0.3, mc + 0.3], [0, ymax * 1.08]);
+    if (br.runaway != null) p.band(br.runaway, mc + 0.3, alpha(TH.unstable, 0.07));
+    if (!br.sup) p.band(mc, mc + 0.3, alpha(TH.unstable, 0.07));
+    p.frame({ xlabel: "μ", ylabel: sq ? "A²" : "A" });
+    p.vline(mc, { color: TH.unstable, dash: [3, 3] });
+    p.text(`μc = ${fmt(mc)}`, mc, ymax * 1.04, { dx: 5, color: TH.unstable, size: 10 });
+    p.line(br.nf.map((n) => [n.mu, val(n.amp)]), { color: TH["ink-2"], width: 1.3, dash: [5, 4] });
+    p.line([[mc - 0.3, 0], [mc, 0]], { color: TH.stable, width: 2.6 });
+    p.line([[mc, 0], [mc + 0.3, 0]], { color: TH.unstable, width: 2, dash: [6, 5] });
+    for (const c of br.cycles) {
+      if (br.sup) p.dot(c.mu, val(c.amp), { r: 3.6, fill: TH.stable });
+      else p.dot(c.mu, val(c.amp), { r: 3.6, fill: TH.panel, stroke: TH.unstable, lw: 1.6 });
+    }
+    if (!br.sup) p.text("runs away", mc + 0.15, ymax * 0.55, { align: "center", color: TH.unstable });
+    else if (br.runaway != null) p.text("cycle lost", (br.runaway + mc + 0.3) / 2, ymax * 0.55, { align: "center", color: TH.unstable });
+    if (D.brFast) p.text("computing cycles…", p.W - p.m.r - 4, p.m.t + 8, { px: true, align: "right", color: TH["ink-3"] });
+    p.vline(S.mu, { color: TH.accent, width: 2 });
+    p.text("μ", S.mu, 0, { dy: -10, dx: 5, color: TH.accent, weight: 600 });
+  }
+  function drawSig(p) {
+    const br = D.br, mc = br.hp.mu;
+    const sg = br.eqs.map((e) => e.sigma);
+    const lo = Math.min(...sg), hi = Math.max(...sg);
+    p.set([mc - 0.3, mc + 0.3], [lo - 0.05, hi + 0.05]);
+    p.frame({ xlabel: "μ", ylabel: "σ", zeroY: true });
+    p.line(br.eqs.filter((e) => e.sigma <= 0).map((e) => [e.mu, e.sigma]).concat([[mc, 0]]), { color: TH.stable, width: 2 });
+    p.line([[mc, 0]].concat(br.eqs.filter((e) => e.sigma > 0).map((e) => [e.mu, e.sigma])), { color: TH.unstable, width: 2 });
+    p.vline(mc, { color: TH.unstable, dash: [3, 3] });
+    p.vline(S.mu, { color: TH.accent, width: 2 });
+  }
+
+  // intake data from the draft (Xiao and He): URANS cycles and RANS eigenvalues
+  const IN = {
+    cycles: [[0.88, 0.021], [0.87, 0.051], [0.85, 0.089], [0.8, 0.18], [0.75, 0.38]],
+    decay: [0.9, 0],
+    trc: 0.881, k: 0.25,
+    eigSettled: [[0.97, -435], [0.9, -160]],
+    eigMean: [[0.88, -12], [0.85, -100]],
+    eigRefined: [0.9, -73],
+    urans: [0.9, -129],
+  };
+  const TRX = [0.965, 0.725];
+  function drawAmpIn(p) {
+    const sq = A2();
+    const val = (a) => (sq ? a * a : a);
+    p.set(TRX, [0, sq ? 0.16 : 0.42]);
+    p.band(0.88, 0.9, alpha(TH["ink-3"], 0.1));
+    p.frame({ xlabel: "TR (closing →)", ylabel: sq ? "A², P₀²" : "A, P₀", xt: [0.95, 0.9, 0.85, 0.8, 0.75] });
+    p.vline(IN.trc, { color: TH.unstable, dash: [3, 3] });
+    p.text("TRc = 0.881", IN.trc, sq ? 0.15 : 0.4, { dx: 5, color: TH.unstable, size: 10 });
+    const fit = [];
+    for (let i = 0; i <= 80; i++) { const tr = IN.trc - (i / 80) * (IN.trc - 0.725); fit.push([tr, val(Math.sqrt(IN.k * (IN.trc - tr)))]); }
+    p.line(fit, { color: TH["ink-2"], width: 1.3, dash: [5, 4] });
+    p.line([[TRX[0], 0], [IN.trc, 0]], { color: TH.stable, width: 2.6 });
+    p.line([[IN.trc, 0], [TRX[1], 0]], { color: TH.unstable, width: 2, dash: [6, 5] });
+    for (const [tr, a] of IN.cycles) p.dot(tr, val(a), { r: 4, fill: TH.stable });
+    p.dot(IN.decay[0], 0, { r: 4.5, fill: TH.panel, stroke: TH.stable, lw: 2 });
+    p.text("decays", IN.decay[0], 0, { dy: -12, align: "center", size: 10 });
+    p.text("URANS onset window", 0.9, sq ? 0.115 : 0.3, { align: "right", dx: -4, size: 9.5, color: TH["ink-3"] });
+  }
+  function drawSigIn(p) {
+    p.set(TRX, [-480, 90]);
+    p.band(0.88, 0.9, alpha(TH["ink-3"], 0.1));
+    p.frame({ xlabel: "TR (closing →)", ylabel: "σ, 1/s", zeroY: true, xt: [0.95, 0.9, 0.85, 0.8, 0.75], yt: [-400, -200, 0] });
+    const [a, b] = IN.eigSettled, slope = (b[1] - a[1]) / (b[0] - a[0]), tr0 = b[0] - b[1] / slope;
+    p.line([[a[0], a[1]], [tr0, 0]], { color: TH["ink-3"], width: 1.2, dash: [4, 4] });
+    p.text(`→ ${fmt(tr0, 2)}`, tr0, 0, { dy: -10, dx: -4, size: 10, color: TH["ink-2"] });
+    for (const [tr, s] of IN.eigSettled) p.dot(tr, s, { r: 4, fill: TH.ink });
+    for (const [tr, s] of IN.eigMean) p.dot(tr, s, { r: 4, fill: TH.panel, stroke: TH.ink, lw: 1.6 });
+    p.cross(IN.eigRefined[0], IN.eigRefined[1], { color: TH.ink });
+    p.dot(IN.urans[0], IN.urans[1], { r: 4, fill: TH.amber });
+  }
+
+  /* ================= section 4 ================= */
+  function drawErr(p) {
+    const cats = ["x1", "x2", "mu"], lab = { x1: "dσ/dx₁", x2: "dσ/dx₂", mu: "dσ/dμ" };
+    p.m.l = 66;
+    p.set([-12, 0], [0, 3]);
+    p.frame({ xlabel: "relative difference", xt: [-12, -9, -6, -3, 0], xf: (v) => "10" + sup(v), yt: [], grid: true });
+    const rel = (v, ref) => Math.max(1e-12, Math.abs(v - ref) / Math.max(Math.abs(ref), 1e-12));
+    cats.forEach((c, i) => {
+      const t = D.an.terms[c], fd = D.fd[c];
+      const yc = 2.5 - i;
+      const bars = [[rel(t.top, fd), TH.amber, 0.17], [rel(t.total, fd), TH.accent, -0.17]];
+      for (const [r, col, off] of bars) {
+        const x1 = p.X(Math.log10(r)), y = p.Y(yc + off);
+        p.ctx.fillStyle = col;
+        p.ctx.fillRect(p.X(-12), y - 6, Math.max(2, x1 - p.X(-12)), 12);
+        p.text(r <= 1.0001e-12 ? "≤10⁻¹²" : fmtE(r), Math.log10(r), yc + off, { dx: 5, size: 9.5, color: TH["ink-2"] });
+      }
+      p.text(lab[c], 4, p.Y(yc), { px: true, size: 10.5, color: TH.ink });
+    });
+  }
+  function drawNewton(p) {
+    const mc = D.hp.mu;
+    let lo = mc - 0.45, hi = mc + 0.45;
+    lo = Math.min(lo, S.mu - 0.05); hi = Math.max(hi, S.mu + 0.05);
+    const pts = D.eigPath.filter((e) => e.mu >= lo && e.mu <= hi).map((e) => [e.mu, e.lam.re]);
+    const ys = pts.map((q) => q[1]);
+    p.set([lo, hi], [Math.min(...ys) - 0.05, Math.max(...ys) + 0.05]);
+    p.frame({ xlabel: "μ", ylabel: "σ", zeroY: true });
+    p.line(pts, { color: TH.ink, width: 2 });
+    p.vline(mc, { color: TH.unstable, dash: [3, 3] });
+    p.text(`μc = ${fmt(mc, 4)}`, mc, p.yr[1], { dx: 5, dy: 8, size: 10, color: TH.unstable });
+    S.newton.forEach((n, k) => {
+      p.dot(n.mu, n.sigma, { r: 3, fill: TH["ink-3"] });
+      p.text(String(k), n.mu, n.sigma, { dx: -4, dy: -9, size: 9.5, align: "right", color: TH["ink-3"] });
+    });
+    const sg = D.an.lam.re, s = D.an.terms.mu.total, mn = S.mu - sg / s;
+    p.line([[S.mu, sg], [mn, 0]], { color: TH.accent, width: 1.6, dash: [5, 3] });
+    p.dot(S.mu, sg, { r: 5, fill: TH.accent, stroke: TH.panel, lw: 1.5 });
+    if (Math.abs(sg) > 1e-6) {
+      p.dot(mn, 0, { r: 4.5, fill: TH.panel, stroke: TH.accent, lw: 2 });
+      p.text("μ_new", mn, 0, { dy: 12, align: "center", color: TH.accent, size: 10 });
+    }
+  }
+
+  /* ================= section 5: design map ================= */
+  const MAP_N = 61;
+  let MAP = null, heatCache = null, mapTimer = null;
+  function computeMap() {
+    const N = MAP_N, muc = [], l1 = [];
+    let lo = Infinity, hi = -Infinity;
+    for (let i = 0; i < N; i++) {
+      muc.push([]); l1.push([]);
+      for (let j = 0; j < N; j++) {
+        const x = [i / (N - 1), j / (N - 1)];
+        const hp = T.hopf(x, S.beta);
+        const ly = T.lyapunov(x, S.beta, hp);
+        muc[i].push(hp.mu); l1[i].push(ly.l1);
+        lo = Math.min(lo, hp.mu); hi = Math.max(hi, hp.mu);
+      }
+    }
+    MAP = { muc, l1, lo, hi, beta: S.beta };
+    MAP.cont = {
+      l0: contour(l1, N, 0),
+      l2: contour(l1, N, -0.2),
+      iso: [0.2, 0.4, 0.6, 0.8].map((v) => ({ v, segs: contour(muc, N, v) })),
+    };
+    heatCache = null;
+  }
+  function scheduleMap() {
+    clearTimeout(mapTimer);
+    mapTimer = setTimeout(() => { computeMap(); invalidate("map"); }, 120);
+  }
+  function contour(G, N, level) {
+    const segs = [];
+    for (let i = 0; i < N - 1; i++)
+      for (let j = 0; j < N - 1; j++) {
+        const P = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j + 1]];
+        const v = P.map(([a, b]) => G[a][b] - level);
+        const pts = [];
+        for (let e = 0; e < 4; e++) {
+          const a = v[e], b = v[(e + 1) % 4];
+          if (a < 0 !== b < 0) {
+            const t = a / (a - b), p0 = P[e], p1 = P[(e + 1) % 4];
+            pts.push([(p0[0] + t * (p1[0] - p0[0])) / (N - 1), (p0[1] + t * (p1[1] - p0[1])) / (N - 1)]);
+          }
+        }
+        if (pts.length === 2) segs.push(pts);
+        else if (pts.length === 4) segs.push([pts[0], pts[1]], [pts[2], pts[3]]);
+      }
+    return segs;
+  }
+  function bilinear(G, u, v) {
+    const N = MAP_N - 1, x = clamp(u, 0, 1) * N, y = clamp(v, 0, 1) * N;
+    const i = Math.min(N - 1, Math.floor(x)), j = Math.min(N - 1, Math.floor(y)), fx = x - i, fy = y - j;
+    return G[i][j] * (1 - fx) * (1 - fy) + G[i + 1][j] * fx * (1 - fy) + G[i][j + 1] * (1 - fx) * fy + G[i + 1][j + 1] * fx * fy;
+  }
+  function seqColor(t, a, b, c) {
+    const [p, q, s] = t < 0.5 ? [a, b, t / 0.5] : [b, c, (t - 0.5) / 0.5];
+    return [p[0] + (q[0] - p[0]) * s, p[1] + (q[1] - p[1]) * s, p[2] + (q[2] - p[2]) * s];
+  }
+  function buildHeat(p) {
+    const d = p.dpr, w = Math.max(1, Math.round(p.iw * d)), h = Math.max(1, Math.round(p.ih * d));
+    const off = document.createElement("canvas");
+    off.width = w; off.height = h;
+    const ctx = off.getContext("2d"), img = ctx.createImageData(w, h);
+    const un = rgb(TH.unstable), span = MAP.hi - MAP.lo || 1;
+    const s0 = rgb(TH["seq-0"]), s1 = rgb(TH["seq-1"]), s2 = rgb(TH["seq-2"]);
+    const stripe = 7 * d;
+    for (let py = 0; py < h; py++) {
+      const v = 1 - (py + 0.5) / h;
+      for (let px = 0; px < w; px++) {
+        const u = (px + 0.5) / w;
+        const m = bilinear(MAP.muc, u, v);
+        let [r, g, b] = seqColor(clamp((m - MAP.lo) / span, 0, 1), s0, s1, s2);
+        if (bilinear(MAP.l1, u, v) > -0.2 && (px + py) % stripe < 1.3 * d) {
+          r = Math.round(r * 0.35 + un[0] * 0.65); g = Math.round(g * 0.35 + un[1] * 0.65); b = Math.round(b * 0.35 + un[2] * 0.65);
+        }
+        const o = 4 * (py * w + px);
+        img.data[o] = r; img.data[o + 1] = g; img.data[o + 2] = b; img.data[o + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    return { canvas: off, w, h, key: `${p.iw}x${p.ih}@${d}` };
+  }
+  function drawMap(p) {
+    if (!MAP) return;
+    p.m = { l: 40, r: 14, t: 22, b: 36 };
+    p.set([0, 1], [0, 1]);
+    const key = `${p.iw}x${p.ih}@${p.dpr}`;
+    if (!heatCache || heatCache.key !== key) heatCache = buildHeat(p);
+    p.ctx.drawImage(heatCache.canvas, p.m.l, p.m.t, p.iw, p.ih);
+    p.frame({ xlabel: "x₁", ylabel: "x₂", grid: false, xt: [0, 0.25, 0.5, 0.75, 1], yt: [0, 0.25, 0.5, 0.75, 1] });
+    const seg = (segs, style) => {
+      const c = p.ctx;
+      c.save(); p.clip();
+      c.strokeStyle = style.color; c.lineWidth = style.width; c.setLineDash(style.dash || []);
+      c.beginPath();
+      for (const [a, b] of segs) { c.moveTo(p.X(a[0]), p.Y(a[1])); c.lineTo(p.X(b[0]), p.Y(b[1])); }
+      c.stroke(); c.restore();
+    };
+    for (const iso of MAP.cont.iso) {
+      seg(iso.segs, { color: alpha(TH.ink, 0.35), width: 1 });
+      if (iso.segs.length) {
+        let best = iso.segs[0], bd = Infinity;
+        for (const s of iso.segs) { const m = [(s[0][0] + s[1][0]) / 2, (s[0][1] + s[1][1]) / 2]; const dd = Math.hypot(m[0] - 0.06, m[1] - 0.94); if (dd < bd && m[0] > 0.03 && m[1] < 0.97) { bd = dd; best = s; } }
+        const m = [(best[0][0] + best[1][0]) / 2, (best[0][1] + best[1][1]) / 2];
+        p.text(fmt(iso.v, 1), m[0], m[1], { align: "center", size: 9.5, color: TH.ink, bg: alpha(TH.panel, 0.8) });
+      }
+    }
+    seg(MAP.cont.l0, { color: TH.unstable, width: 2.2 });
+    seg(MAP.cont.l2, { color: TH.unstable, width: 1.6, dash: [6, 4] });
+    // labels for the two l1 curves
+    const lab = (segs, s) => { if (!segs.length) return; const q = segs.reduce((a, b) => (Math.abs(a[0][0] - 0.55) < Math.abs(b[0][0] - 0.55) ? a : b)); p.text(s, q[0][0], q[0][1], { dx: 6, dy: -8, size: 10, color: TH.unstable, bg: alpha(TH.panel, 0.85) }); };
+    lab(MAP.cont.l0, "l₁ = 0");
+    lab(MAP.cont.l2, "l₁ = −0.2");
+    // optimizer path
+    if (S.path.length) {
+      p.line(S.path.map((q) => q.x), { color: TH.amber, width: 2 });
+      S.path.forEach((q, k) => p.dot(q.x[0], q.x[1], { r: 3.2, fill: TH.amber, clip: false }));
+    }
+    // reference designs
+    const c = p.ctx;
+    c.save(); c.strokeStyle = TH.ink; c.lineWidth = 1.6;
+    c.strokeRect(p.X(1) - 5, p.Y(1) - 5, 10, 10);
+    c.restore();
+    p.text("baseline", 1, 1, { dx: -9, dy: 12, align: "right", size: 10, color: TH.ink, bg: alpha(TH.panel, 0.8) });
+    const ox = p.X(DES.opt[0]), oy = p.Y(DES.opt[1]);
+    c.save(); c.strokeStyle = TH.ink; c.lineWidth = 1.6; c.beginPath(); c.moveTo(ox, oy - 7); c.lineTo(ox + 7, oy); c.lineTo(ox, oy + 7); c.lineTo(ox - 7, oy); c.closePath(); c.stroke(); c.restore();
+    p.text("paper optimum", DES.opt[0], DES.opt[1], { dx: -11, dy: 14, align: "right", size: 10, color: TH.ink, bg: alpha(TH.panel, 0.8) });
+    // current design and gradients
+    const X0 = p.X(S.x[0]), Y0 = p.Y(S.x[1]), L = 52;
+    const g1 = D.gMuc, g2 = D.gL1;
+    const n1 = Math.hypot(g1[0], g1[1]) || 1, n2 = Math.hypot(g2[0], g2[1]) || 1;
+    arrow(c, X0, Y0, X0 + (L * g1[0]) / n1, Y0 - (L * g1[1]) / n1, TH.accent, 2.4);
+    arrow(c, X0, Y0, X0 + (L * g2[0]) / n2, Y0 - (L * g2[1]) / n2, TH.unstable, 2);
+    c.save(); c.beginPath(); c.arc(X0, Y0, 7.5, 0, 2 * Math.PI); c.fillStyle = TH.accent; c.fill(); c.lineWidth = 2.5; c.strokeStyle = TH.panel; c.stroke(); c.restore();
+  }
+  function drawMini(p) {
+    const br = D.br, mc = br.hp.mu;
+    let ymax = 0.2;
+    for (const c of br.cycles) ymax = Math.max(ymax, c.amp);
+    for (const n of br.nf) if (n.amp != null) ymax = Math.max(ymax, Math.min(n.amp, 3.5));
+    p.set([-0.3, 0.3], [0, ymax * 1.08]);
+    if (!br.sup) p.band(0, 0.3, alpha(TH.unstable, 0.07));
+    p.frame({ xlabel: "μ − μc", ylabel: "A" });
+    p.line(br.nf.map((n) => [n.mu - mc, n.amp]), { color: TH["ink-2"], width: 1.3, dash: [5, 4] });
+    p.line([[-0.3, 0], [0, 0]], { color: TH.stable, width: 2.4 });
+    p.line([[0, 0], [0.3, 0]], { color: TH.unstable, width: 2, dash: [6, 5] });
+    for (const c of br.cycles) {
+      if (br.sup) p.dot(c.mu - mc, c.amp, { r: 3, fill: TH.stable });
+      else p.dot(c.mu - mc, c.amp, { r: 3, fill: TH.panel, stroke: TH.unstable, lw: 1.4 });
+    }
+  }
+  function bindMap(p) {
+    const cv = p.cv;
+    cv.tabIndex = 0;
+    const toX = (e) => {
+      const r = cv.getBoundingClientRect();
+      return [clamp(p.ix(e.clientX - r.left), 0, 1), clamp(p.iy(e.clientY - r.top), 0, 1)];
+    };
+    cv.addEventListener("pointerdown", (e) => {
+      cancelOptimizer();
+      try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+      dragging = true;
+      setState({ x: toX(e) }, { keepSim: true });
+    });
+    cv.addEventListener("pointermove", (e) => { if (dragging && cv.hasPointerCapture(e.pointerId)) setState({ x: toX(e) }, { keepSim: true }); });
+    const up = () => { if (dragging) { finishDrag(); kick(); } };
+    cv.addEventListener("pointerup", up);
+    cv.addEventListener("pointercancel", up);
+    cv.addEventListener("keydown", (e) => {
+      const d = { ArrowLeft: [-0.01, 0], ArrowRight: [0.01, 0], ArrowUp: [0, 0.01], ArrowDown: [0, -0.01] }[e.key];
+      if (!d) return;
+      e.preventDefault();
+      cancelOptimizer();
+      setState({ x: [clamp(S.x[0] + d[0], 0, 1), clamp(S.x[1] + d[1], 0, 1)] });
+    });
+  }
+
+  let optRunning = false, optToken = 0;
+  function cancelOptimizer() {
+    if (!optRunning) return;
+    optToken++;
+    optRunning = false;
+    $("#opt-btn").disabled = false;
+  }
+  function runOptimizer() {
+    if (optRunning) return;
+    optRunning = true;
+    const token = ++optToken;
+    $("#opt-btn").disabled = true;
+    S.path = [];
+    let x = S.x.slice(), it = 0;
+    const step = () => {
+      if (token !== optToken) return;
+      const s = T.sqpStep(x, S.beta);
+      S.path.push({ x: x.slice(), muc: s.muc, l1: s.l1 });
+      const nx = [clamp(x[0] + s.d[0], 0, 1), clamp(x[1] + s.d[1], 0, 1)];
+      const done = Math.hypot(nx[0] - x[0], nx[1] - x[1]) < 1e-7 || ++it >= 25;
+      x = nx;
+      if (done) {
+        optRunning = false;
+        $("#opt-btn").disabled = false;
+        setState({ x });
+        return;
+      }
+      dragging = true;
+      setState({ x }, { keepSim: true });
+      dragging = false;
+      setTimeout(step, reduceMotion ? 0 : 480);
+    };
+    step();
+  }
+
+  /* ================= hero ================= */
+  const HX = (x) => (x <= 80 ? 46 + 5.4 * x : 500 + 5.4 * (x - 560));
+  const HY = (r) => 210 - 5.4 * r;
+  const T25 = Math.tan((25 * Math.PI) / 180);
+  function rcb(x) {
+    if (x <= 34.7) return T25 * x;
+    if (x >= 80) return 8;
+    return 8 + (16.18 - 8) * (1 + Math.cos((Math.PI * (x - 34.7)) / (80 - 34.7))) / 2;
+  }
+  const path = (pts, close = false) => pts.map(([x, r], i) => `${i ? "L" : "M"}${HX(x).toFixed(1)} ${HY(r).toFixed(1)}`).join(" ") + (close ? " Z" : "");
+  function plugPts(tr) {
+    const rp = Math.sqrt(400 - (tr * 540) / Math.PI);
+    return [[560, 8], [595, 8], [629, rp], [634, rp], [640, rp - 1.2], [640, 0], [560, 0]];
+  }
+  function buildInlet() {
+    const svg = $("#inlet");
+    const front = [];
+    for (let i = 0; i <= 60; i++) { const x = (80 * i) / 60; front.push([x, rcb(x)]); }
+    front.push([80, 0], [0, 0]);
+    const cowlF = [[31.32, 19.27], [36, 22.4], [50, 28.6], [56, 30], [80, 30], [80, 20], [50, 19.85]];
+    const cowlR = [[560, 30], [640, 30], [640, 20.4], [560, 20]];
+    const t36 = Math.tan((36 * Math.PI) / 180);
+    const zig = (px) => {
+      const y0 = HY(31.5), y1 = HY(-0.6), n = 9;
+      let d = `M${px} ${y0}`;
+      for (let k = 1; k <= n; k++) d += ` L${px + (k % 2 ? 5 : -5)} ${y0 + ((y1 - y0) * k) / n}`;
+      return d;
+    };
+    svg.innerHTML = `
+      <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" style="stroke: var(--ink-3); stroke-width: 1"/></pattern></defs>
+      <line x1="${HX(-8)}" y1="${HY(0)}" x2="${HX(645)}" y2="${HY(0)}" style="stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 10 3 2 3"/>
+      <g style="stroke: var(--ink); stroke-width: 1.2; stroke-linejoin: round">
+        <path d="${path(front, true)}" style="fill: var(--panel)"/><path d="${path(front, true)}" style="fill: url(#hatch)"/>
+        <path id="plug-bg" style="fill: var(--panel)"/><path id="plug" style="fill: url(#hatch)"/>
+        <path d="${path(cowlF, true)}" style="fill: var(--panel)"/><path d="${path(cowlF, true)}" style="fill: url(#hatch)"/>
+        <path d="${path(cowlR, true)}" style="fill: var(--panel)"/><path d="${path(cowlR, true)}" style="fill: url(#hatch)"/>
+      </g>
+      <path d="${zig(481)}" style="fill: none; stroke: var(--ink-3); stroke-width: 1.2"/>
+      <path d="${zig(497)}" style="fill: none; stroke: var(--ink-3); stroke-width: 1.2"/>
+      <path d="M${HX(0)} ${HY(0)} L${HX(30.5)} ${HY(30.5 * t36)}" style="stroke: var(--ink-2); stroke-width: 1.2; fill: none"/>
+      <path id="tshock-ghost" style="stroke: var(--ink-3); stroke-width: 2; fill: none; opacity: 0.5"/>
+      <path id="tshock" style="stroke: var(--ink); stroke-width: 2.8; fill: none; stroke-linecap: round"/>
+      <circle cx="${HX(593)}" cy="${HY(20)}" r="3.2" style="fill: var(--accent); stroke: var(--panel); stroke-width: 1"/>
+      <text x="${HX(593)}" y="${HY(17.4)}" text-anchor="middle" class="lbl-strong">P7</text>
+      <path d="M 6 ${HY(24)} L 34 ${HY(24)}" style="stroke: var(--ink-2); stroke-width: 1.4; marker-end: none"/>
+      <path d="M 34 ${HY(24)} l -6 -3.5 l 0 7 z" style="fill: var(--ink-2)"/>
+      <text x="6" y="${HY(26.3)}" class="lbl-strong">M∞ = 2.0</text>
+      <text x="8" y="${HY(8)}">25° cone</text>
+      <path d="M58 ${HY(7.2)} L${HX(12)} ${HY(5.8)}" style="stroke: var(--ink-3); stroke-width: 0.8"/>
+      <text x="${HX(14)}" y="${HY(35.2)}">cowl lip</text>
+      <path d="M${HX(22)} ${HY(34.2)} L${HX(31.1)} ${HY(19.6)}" style="stroke: var(--ink-3); stroke-width: 0.8"/>
+      <text x="${HX(38)}" y="${HY(35.2)}">terminal shock</text>
+      <path d="M${HX(44)} ${HY(34.2)} L${HX(34.6)} ${HY(19.3)}" style="stroke: var(--ink-3); stroke-width: 0.8"/>
+      <text x="${HX(62)}" y="${HY(14)}">duct</text>
+      <text x="489" y="${HY(35.2)}" text-anchor="middle">≈ 0.5 m of duct omitted</text>
+      <text x="${HX(567)}" y="${HY(14)}">plenum</text>
+      <text x="${HX(636)}" y="${HY(35.2)}" text-anchor="end">throttle plug</text>
+      <path d="M${HX(626)} ${HY(34.2)} L${HX(630)} ${HY(17)}" style="stroke: var(--ink-3); stroke-width: 0.8"/>`;
+    setPlug();
+  }
+  function setPlug() {
+    const d = path(plugPts(S.tr), true);
+    $("#plug").setAttribute("d", d);
+    $("#plug-bg").setAttribute("d", d);
+  }
+  function shockPath(xs) {
+    const top = 19.5 + clamp((31.32 - xs) / 3, 0, 1) * 7.5;
+    const lean = clamp((31.32 - xs) / 3, 0, 1) * 4;
+    const r0 = rcb(xs);
+    return `M${HX(xs).toFixed(1)} ${HY(r0).toFixed(1)} Q${HX(xs - 0.9).toFixed(1)} ${HY((r0 + top) / 2 + 0.6).toFixed(1)} ${HX(xs + lean).toFixed(1)} ${HY(top).toFixed(1)}`;
+  }
+  function heroTarget(tr) {
+    let A;
+    if (tr >= IN.trc) A = 0;
+    else if (tr >= 0.85) A = Math.sqrt(IN.k * (IN.trc - tr));
+    else if (tr >= 0.8) A = 0.089 + ((0.85 - tr) / 0.05) * (0.18 - 0.089);
+    else A = 0.18 + ((0.8 - tr) / 0.05) * (0.38 - 0.18);
+    const fpts = [[0.75, 118], [0.8, 118], [0.85, 115], [0.88, 114], [1.0, 114]];
+    let f = 114;
+    for (let i = 0; i < fpts.length - 1; i++) if (tr >= fpts[i][0] && tr <= fpts[i + 1][0]) f = fpts[i][1] + ((tr - fpts[i][0]) / (fpts[i + 1][0] - fpts[i][0])) * (fpts[i + 1][1] - fpts[i][1]);
+    return { A, f };
+  }
+  const XS0 = 34, excursion = (A) => 14.5 * Math.sqrt(Math.max(0, A) / 0.38);
+  const hero = { amp: 0, phase: 0, t: 0, buf: [] };
+  function heroText() {
+    const { A, f } = heroTarget(S.tr);
+    $("#tr-out").textContent = S.tr.toFixed(3);
+    const pill = $("#tr-pill");
+    if (A > 0) {
+      pill.className = "pill bad"; pill.textContent = "buzz";
+      $("#tr-big").textContent = `${A.toFixed(A < 0.1 ? 3 : 2)} P₀`;
+      $("#tr-sub").textContent = `plenum swing (peak to peak) at ${Math.round(f)} Hz`;
+    } else {
+      pill.className = "pill ok"; pill.textContent = "steady";
+      $("#tr-big").textContent = "0";
+      $("#tr-sub").textContent = "disturbances decay; the shock holds just inside the lip";
+    }
+    setPlug();
+    const pct = (IN.trc - 0.75) / 0.25;
+    $("#tr-mark").style.left = `calc(8px + ${pct} * (100% - 16px))`;
+  }
+  function heroFrame(dtWall) {
+    const dts = dtWall / 50;
+    const { A, f } = heroTarget(S.tr);
+    hero.amp += (A - hero.amp) * (1 - Math.exp(-dts / 0.012));
+    hero.phase += 2 * Math.PI * f * dts;
+    hero.t += dts;
+    hero.buf.push([hero.t, 0.73 + 0.5 * hero.amp * Math.sin(hero.phase)]);
+    while (hero.buf.length && hero.buf[0][0] < hero.t - 0.041) hero.buf.shift();
+    const xs = XS0 - (excursion(hero.amp) * (1 + Math.sin(hero.phase - 0.8))) / 2;
+    $("#tshock").setAttribute("d", shockPath(xs));
+  }
+  function heroStatic() {
+    const { A, f } = heroTarget(S.tr);
+    hero.amp = A; hero.t = 0.04; hero.buf = [];
+    for (let i = 0; i <= 400; i++) { const t = (0.04 * i) / 400; hero.buf.push([t, 0.73 + 0.5 * A * Math.sin(2 * Math.PI * f * t)]); }
+    $("#tshock").setAttribute("d", shockPath(XS0 - excursion(A)));
+    $("#tshock-ghost").setAttribute("d", A > 0 ? shockPath(XS0) : "");
+    heroPlot.redraw();
+  }
+  function drawHero(p) {
+    p.m = { l: 40, r: 10, t: 20, b: 34 };
+    p.set([-40, 0], [0.5, 0.96]);
+    p.frame({ xlabel: "t − now, ms", ylabel: "p/P₀", xt: [-40, -30, -20, -10, 0], yt: [0.5, 0.6, 0.7, 0.8, 0.9] });
+    p.line(hero.buf.map(([t, v]) => [(t - hero.t) * 1000, v]), { color: TH.accent, width: 1.8 });
+  }
+
+  /* ================= animation loop ================= */
+  let last = performance.now();
+  let heroVisible = true, p1Visible = true;
+  function loop(now) {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    if (heroVisible) { heroFrame(dt); heroPlot.redraw(); }
+    if (p1Visible && !sim.paused && sim.status === "run") {
+      advance(dt * 6);
+      eigPlot.redraw(); phasePlot.redraw(); tracePlot.redraw();
+    }
+    requestAnimationFrame(loop);
+  }
+
+  /* ================= init ================= */
+  let heroPlot, eigPlot, phasePlot, tracePlot;
+  function init() {
+    readTheme();
+    recomputeDesign(false);
+    recomputePoint();
+    computeMap();
+    buildInlet();
+    heroPlot = new Plot($("#hero-trace"), drawHero);
+    eigPlot = new Plot($("#p1-eig"), drawEig, { l: 40, b: 34 });
+    phasePlot = new Plot($("#p1-phase"), drawPhase, { l: 44, b: 34 });
+    tracePlot = new Plot($("#p1-trace"), drawTrace, { l: 44 });
+    new Plot($("#p2-amp"), drawAmp);
+    new Plot($("#p2-sig"), drawSig);
+    new Plot($("#p2-amp-in"), drawAmpIn);
+    new Plot($("#p2-sig-in"), drawSigIn, { l: 46 });
+    new Plot($("#p4-err"), drawErr);
+    new Plot($("#p4-newton"), drawNewton);
+    const mapPlot = new Plot($("#p5-map"), drawMap);
+    new Plot($("#p5-mini"), drawMini);
+    bindMap(mapPlot);
+    $("#p2-amp").addEventListener("click", (e) => {
+      const p = plots.find((q) => q.cv === e.currentTarget);
+      const r = e.currentTarget.getBoundingClientRect();
+      setState({ mu: clamp(p.ix(e.clientX - r.left), MU_RANGE[0], MU_RANGE[1]) });
+    });
+    bindControls();
+    kick();
+    advance(28);
+    heroText();
+    if (reduceMotion) heroStatic();
+    else {
+      hero.amp = heroTarget(S.tr).A;
+      for (let i = 0; i < 150; i++) heroFrame(1 / 60);
+    }
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver((es) => { heroVisible = es[es.length - 1].isIntersecting; }).observe($("#hero-plate"));
+      new IntersectionObserver((es) => { p1Visible = es[es.length - 1].isIntersecting; }).observe($("#p1"));
+    }
+    invalidate("all");
+    for (const p of plots) p.redraw(true);
+    if (!reduceMotion) requestAnimationFrame((t) => { last = t; loop(t); });
+
+    const retheme = () => { readTheme(); heatCache = null; for (const p of plots) p.redraw(true); };
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", retheme);
+    new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "class"] });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { for (const p of plots) p.redraw(true); });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+
+</script>
+</body>
+</html>
