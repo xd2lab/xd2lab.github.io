@@ -489,6 +489,10 @@ redirect_from:
   <div class="news-section">
     <h2>Latest News</h2>
     <div class="news-item">
+      <div class="news-date">Oct 2026</div>
+      <div class="news-content"><i class="fas fa-trophy" style="color: var(--lab-primary);"></i> Nicholas Emelkin wins the <strong>first-place poster award</strong> at <a href="https://event.asme.org/InterPACK" target="_blank"><strong>ASME InterPACK 2026</strong></a> (San Diego) for <em>&ldquo;Diffusion-Based Super-Resolution for Transient Nonlinear Phase-Change Fields&rdquo;</em> &mdash; led by <a href="https://mabe.utk.edu/people/xiangyu-li" target="_blank">Xiangyu Li</a> (UTK MABE), with Max Howell, Joshua Aninyei, Shaodong Zhang, and Sicheng He. Congrats!<br><a href="/images/news/interpack2026_poster_award.jpg" target="_blank"><img src="/images/news/interpack2026_poster_award.jpg" alt="Poster award at ASME InterPACK 2026" style="max-width: 280px; width: 100%; margin-top: 6px; border-radius: 6px;"></a></div>
+    </div>
+    <div class="news-item">
       <div class="news-date">Sep 2026</div>
       <div class="news-content"><i class="fas fa-file-alt" style="color: var(--lab-primary);"></i> Paper accepted at the NeurIPS 2026 <a href="https://representations-physical-sciences.github.io/workshop-2026/" target="_blank"><strong>Workshop on Representations for the Physical Sciences (RPS)</strong></a> in Paris.</div>
     </div>
