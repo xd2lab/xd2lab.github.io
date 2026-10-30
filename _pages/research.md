@@ -19,6 +19,15 @@ Transonic buffet—self-sustained shock and shear-layer oscillations—limits th
 Led by Ph.D. student Rohit Kanchi, we predict buffet onset from first principles with linear stability analysis (LST) of the steady base flow, and we developed a **coupled adjoint** that computes the sensitivity of the dominant LST eigenvalue with respect to a large number of shape design variables.
 A buffet-constrained drag minimization of the OAT15A supercritical airfoil achieves a **22.4% drag reduction** while satisfying the LST-based buffet constraint.
 This work received the **2026 AIAA MDO Best Student Paper Runner-Up** award.
+Rohit presented this work at the [NASA Ames Applied Modeling & Simulation (AMS) Seminar Series](https://www.nas.nasa.gov/pubs/ams/2026/07-02-26.html) on July 2, 2026 ([slides](https://www.nas.nasa.gov/assets/nas/pdf/ams/2026/AMS_20260702_Kanchi.pdf)).
+
+<figure class="lab-figure">
+  <div class="lab-figure-row">
+    <img src="../images/research/aiaa_mdo_award_2026.jpg" alt="Rohit Kanchi holding his AIAA Certificate of Merit on stage at the 2026 AIAA AVIATION Forum" style="flex: 1 1 320px; min-width: 0; max-width: 480px; border: 1px solid #d8d8d8; border-radius: 6px;">
+    <a href="https://www.nas.nasa.gov/pubs/ams/2026/07-02-26.html" target="_blank" style="flex: 1 1 320px; min-width: 0; max-width: 480px;"><img src="../images/research/nasa_ams_seminar.jpg" alt="Transonic Buffet Alleviation via Linear Stability Adjoint, NASA Ames AMS Seminar" style="width: 100%; border: 1px solid #d8d8d8; border-radius: 6px;"></a>
+  </div>
+  <figcaption>Left: Rohit Kanchi (second from left) receives the 2026 AIAA MDO Best Student Paper Runner-Up certificate at the AIAA AVIATION Forum in San Diego (June 2026). Right: watch the recording of &ldquo;Transonic Buffet Alleviation via Linear Stability Adjoint&rdquo; on the <a href="https://www.nas.nasa.gov/pubs/ams/2026/07-02-26.html" target="_blank">NASA Ames AMS seminar page</a> (July 2, 2026).</figcaption>
+</figure>
 
 We are extending the approach to three-dimensional buffet on swept wings.
 The simulation below was computed using [ADflow](https://github.com/mdolab/adflow), a state-of-the-art RANS-based finite-volume solver, on NASA's [Common Research Model (CRM)](https://commonresearchmodel.larc.nasa.gov/) wing in the wing-only configuration, at Mach 0.85, angle of attack 4.2 deg, and Reynolds number 5 million.
@@ -29,13 +38,6 @@ The simulation below was computed using [ADflow](https://github.com/mdolab/adflo
     Your browser does not support the video tag.
   </video>
   <figcaption>A tiled view of the 3D buffet dynamics on the CRM wing showing the Q-criterion isosurface, density, pressure coefficient with shock isosurface, spanwise velocity, spanwise vorticity, and lift-coefficient history.</figcaption>
-</figure>
-
-Rohit presented this work at the [NASA Ames Applied Modeling & Simulation (AMS) Seminar Series](https://www.nas.nasa.gov/pubs/ams/2026/07-02-26.html) on July 2, 2026 ([slides](https://www.nas.nasa.gov/assets/nas/pdf/ams/2026/AMS_20260702_Kanchi.pdf)).
-
-<figure class="lab-figure">
-  <a href="https://www.nas.nasa.gov/pubs/ams/2026/07-02-26.html" target="_blank"><img src="../images/research/nasa_ams_seminar.jpg" alt="Transonic Buffet Alleviation via Linear Stability Adjoint, NASA Ames AMS Seminar" style="max-width: 800px; border: 1px solid #d8d8d8; border-radius: 6px;"></a>
-  <figcaption>Watch the recording of &ldquo;Transonic Buffet Alleviation via Linear Stability Adjoint&rdquo; on the <a href="https://www.nas.nasa.gov/pubs/ams/2026/07-02-26.html" target="_blank">NASA Ames AMS seminar page</a> (July 2, 2026).</figcaption>
 </figure>
 
 We are also using optimal control to suppress buffet on the CRM wing by morphing the wing shape in time.
